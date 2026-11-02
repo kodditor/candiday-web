@@ -1,0 +1,440 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@config "../tailwind.config.js";
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  * {
+    scroll-behavior: smooth;
+    margin: 0;
+    padding: 0;
+  }
+}
+ 
+@custom-variant dark (&:is(.dark *));
+ 
+/* ------------------------------------------------------------------ */
+/* 1. Tokens: light                                                    */
+/* ------------------------------------------------------------------ */
+:root {
+  --radius: 0.5rem;
+ 
+  /* Surfaces: warm paper, white cards */
+  --background: oklch(0.977 0.006 90);        /* ~#FAF8F3 */
+  --foreground: oklch(0.24 0.015 190);        /* ~#17201F ink */
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.24 0.015 190);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.24 0.015 190);
+ 
+  /* Primary: deep ink-green teal */
+  --primary: oklch(0.38 0.07 190);            /* ~#0F4C4A */
+  --primary-foreground: oklch(0.98 0.005 90);
+ 
+  --secondary: oklch(0.948 0.01 90);
+  --secondary-foreground: oklch(0.28 0.02 190);
+ 
+  --muted: oklch(0.953 0.008 90);
+  --muted-foreground: oklch(0.5 0.015 190);
+ 
+  --accent: oklch(0.94 0.025 190);            /* soft teal tint for hovers */
+  --accent-foreground: oklch(0.3 0.06 190);
+ 
+  --destructive: oklch(0.52 0.15 35);         /* muted rust, not alarm red */
+  --destructive-foreground: oklch(0.98 0.005 90);
+ 
+  --border: oklch(0.9 0.008 90);
+  --input: oklch(0.88 0.01 90);
+  --ring: oklch(0.55 0.08 190);
+ 
+  /* Charts (kept on-brand and colour-blind friendly: vary lightness too) */
+  --chart-1: oklch(0.38 0.07 190);
+  --chart-2: oklch(0.72 0.14 75);
+  --chart-3: oklch(0.55 0.05 250);
+  --chart-4: oklch(0.52 0.13 40);
+  --chart-5: oklch(0.65 0.01 90);
+ 
+  /* Sidebar (shadcn sidebar component) */
+  --sidebar: oklch(0.965 0.008 90);
+  --sidebar-foreground: oklch(0.24 0.015 190);
+  --sidebar-primary: oklch(0.38 0.07 190);
+  --sidebar-primary-foreground: oklch(0.98 0.005 90);
+  --sidebar-accent: oklch(0.94 0.025 190);
+  --sidebar-accent-foreground: oklch(0.3 0.06 190);
+  --sidebar-border: oklch(0.9 0.008 90);
+  --sidebar-ring: oklch(0.55 0.08 190);
+ 
+  /* ---- Candiday custom tokens ---- */
+ 
+  /* Evidence: the highlighter. Source text from the CV only. */
+  --evidence: oklch(0.9 0.13 95);             /* ~#FFE27A */
+  --evidence-strong: oklch(0.84 0.15 92);     /* active / selected highlight */
+  --evidence-foreground: oklch(0.24 0.02 90); /* always dark ink on yellow */
+ 
+  /* Criterion status. Each is paired with an icon; never colour alone. */
+  --status-meets: oklch(0.45 0.09 185);
+  --status-meets-soft: oklch(0.94 0.03 185);
+  --status-partial: oklch(0.62 0.14 70);      /* amber, AA on soft bg */
+  --status-partial-soft: oklch(0.95 0.045 85);
+  --status-unknown: oklch(0.55 0.01 90);      /* "Not evidenced": neutral, NOT red */
+  --status-unknown-soft: oklch(0.95 0.004 90);
+  --status-unmet: oklch(0.5 0.13 40);         /* use rarely: CV explicitly contradicts */
+  --status-unmet-soft: oklch(0.95 0.025 40);
+ 
+  /* PDF viewer: slightly darker neutral so the page reads as paper */
+  --viewer: oklch(0.92 0.006 90);
+  --viewer-page: oklch(1 0 0);
+ 
+  /* Voices */
+  --ai-label: oklch(0.5 0.015 190);           /* quiet "AI-assessed" tag */
+  --human-mark: oklch(0.38 0.07 190);         /* approved / decided by recruiter */
+}
+ 
+/* ------------------------------------------------------------------ */
+/* 2. Tokens: dark                                                     */
+/* ------------------------------------------------------------------ */
+.dark {
+  --background: oklch(0.18 0.012 190);
+  --foreground: oklch(0.94 0.008 90);
+  --card: oklch(0.22 0.014 190);
+  --card-foreground: oklch(0.94 0.008 90);
+  --popover: oklch(0.22 0.014 190);
+  --popover-foreground: oklch(0.94 0.008 90);
+ 
+  --primary: oklch(0.74 0.1 185);
+  --primary-foreground: oklch(0.2 0.03 190);
+ 
+  --secondary: oklch(0.27 0.014 190);
+  --secondary-foreground: oklch(0.94 0.008 90);
+ 
+  --muted: oklch(0.27 0.012 190);
+  --muted-foreground: oklch(0.7 0.012 190);
+ 
+  --accent: oklch(0.3 0.03 190);
+  --accent-foreground: oklch(0.94 0.008 90);
+ 
+  --destructive: oklch(0.68 0.14 38);
+  --destructive-foreground: oklch(0.18 0.012 190);
+ 
+  --border: oklch(1 0 0 / 11%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.65 0.09 185);
+ 
+  --chart-1: oklch(0.74 0.1 185);
+  --chart-2: oklch(0.8 0.14 80);
+  --chart-3: oklch(0.7 0.07 250);
+  --chart-4: oklch(0.68 0.14 40);
+  --chart-5: oklch(0.7 0.01 90);
+ 
+  --sidebar: oklch(0.21 0.013 190);
+  --sidebar-foreground: oklch(0.94 0.008 90);
+  --sidebar-primary: oklch(0.74 0.1 185);
+  --sidebar-primary-foreground: oklch(0.2 0.03 190);
+  --sidebar-accent: oklch(0.3 0.03 190);
+  --sidebar-accent-foreground: oklch(0.94 0.008 90);
+  --sidebar-border: oklch(1 0 0 / 11%);
+  --sidebar-ring: oklch(0.65 0.09 185);
+ 
+  /* Evidence stays a real highlighter in dark mode: dimmer, still dark ink */
+  --evidence: oklch(0.84 0.12 95);
+  --evidence-strong: oklch(0.88 0.14 95);
+  --evidence-foreground: oklch(0.22 0.02 90);
+ 
+  --status-meets: oklch(0.76 0.1 185);
+  --status-meets-soft: oklch(0.3 0.04 185);
+  --status-partial: oklch(0.8 0.13 80);
+  --status-partial-soft: oklch(0.32 0.05 80);
+  --status-unknown: oklch(0.72 0.01 90);
+  --status-unknown-soft: oklch(0.28 0.006 90);
+  --status-unmet: oklch(0.72 0.13 40);
+  --status-unmet-soft: oklch(0.31 0.05 40);
+ 
+  --viewer: oklch(0.15 0.008 190);
+  --viewer-page: oklch(0.97 0.006 90);        /* the CV stays paper-white */
+ 
+  --ai-label: oklch(0.72 0.012 190);
+  --human-mark: oklch(0.74 0.1 185);
+}
+ 
+/* ------------------------------------------------------------------ */
+/* 3. Map tokens to Tailwind utilities                                 */
+/* ------------------------------------------------------------------ */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+ 
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+ 
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+ 
+  /* Candiday: usable as bg-evidence, text-status-meets, bg-status-partial-soft, etc. */
+  --color-evidence: var(--evidence);
+  --color-evidence-strong: var(--evidence-strong);
+  --color-evidence-foreground: var(--evidence-foreground);
+ 
+  --color-status-meets: var(--status-meets);
+  --color-status-meets-soft: var(--status-meets-soft);
+  --color-status-partial: var(--status-partial);
+  --color-status-partial-soft: var(--status-partial-soft);
+  --color-status-unknown: var(--status-unknown);
+  --color-status-unknown-soft: var(--status-unknown-soft);
+  --color-status-unmet: var(--status-unmet);
+  --color-status-unmet-soft: var(--status-unmet-soft);
+ 
+  --color-viewer: var(--viewer);
+  --color-viewer-page: var(--viewer-page);
+  --color-ai-label: var(--ai-label);
+  --color-human-mark: var(--human-mark);
+ 
+  /* Radius: restrained, slightly tighter than shadcn default */
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+ 
+  /* Fonts: UI sans, source-voice serif, numeric mono */
+  --font-sans: var(--font-inter), "Inter Variable", Inter, ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-source-serif), "Source Serif 4 Variable", "Source Serif 4", Georgia, serif;
+  --font-mono: var(--font-jetbrains), "JetBrains Mono Variable", ui-monospace, SFMono-Regular, monospace;
+ 
+  /* Tight, work-focused type scale: 13 / 14 / 16 / 20 / 28 */
+  --text-xs: 0.8125rem;
+  --text-xs--line-height: 1.15rem;
+  --text-sm: 0.875rem;
+  --text-sm--line-height: 1.25rem;
+  --text-base: 1rem;
+  --text-base--line-height: 1.5rem;
+  --text-xl: 1.25rem;
+  --text-xl--line-height: 1.75rem;
+  --text-3xl: 1.75rem;
+  --text-3xl--line-height: 2.125rem;
+ 
+  /* Short, functional motion */
+  --animate-highlight-in: highlight-in 220ms ease-out both;
+}
+ 
+@keyframes highlight-in {
+  from { background-size: 0% 100%; }
+  to   { background-size: 100% 100%; }
+}
+ 
+/* ------------------------------------------------------------------ */
+/* 4. Base                                                             */
+/* ------------------------------------------------------------------ */
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+ 
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-feature-settings: "cv11", "ss01";
+  }
+ 
+  h1, h2, h3 {
+    @apply font-semibold tracking-tight;
+  }
+ 
+  /* Visible keyboard focus everywhere: recruiters review many CVs by keyboard */
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-ring;
+  }
+ 
+  ::selection {
+    background: color-mix(in oklch, var(--primary) 22%, transparent);
+  }
+}
+ 
+/* ------------------------------------------------------------------ */
+/* 5. Candiday components                                              */
+/* ------------------------------------------------------------------ */
+@layer components {
+ 
+  /* SOURCE VOICE: text quoted from the CV ---------------------------- */
+ 
+  /* Inline highlighted phrase. Use on <mark class="evidence"> */
+  .evidence {
+    @apply rounded-[3px] px-[0.2em] text-evidence-foreground;
+    background-image: linear-gradient(var(--evidence), var(--evidence));
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+  }
+ 
+  /* Selected / active highlight, animates in when a criterion is clicked */
+  .evidence[data-active="true"] {
+    background-image: linear-gradient(var(--evidence-strong), var(--evidence-strong));
+    @apply animate-highlight-in;
+  }
+ 
+  /* Block quote from the CV: serif, with a highlighter edge */
+  .evidence-quote {
+    @apply font-serif text-[0.9375rem] leading-relaxed text-foreground;
+    border-left: 3px solid var(--evidence);
+    padding-left: 0.75rem;
+  }
+ 
+  /* Clickable page reference, e.g. "p.2" */
+  .page-chip {
+    @apply inline-flex items-center rounded-sm border border-border bg-card px-1.5 py-0.5
+           font-mono text-xs tabular-nums text-muted-foreground transition-colors
+           hover:border-primary hover:text-primary;
+  }
+ 
+  /* When exact highlight matching fails: honest, outlined, no fake precision */
+  .page-chip[data-match="page-only"] {
+    @apply border-dashed;
+  }
+ 
+  /* AI VOICE: quiet label on machine-generated text ------------------- */
+  .ai-label {
+    @apply inline-flex items-center gap-1 text-xs font-medium text-ai-label;
+  }
+ 
+  /* HUMAN VOICE: recruiter-approved items, slightly heavier ------------ */
+  .human-approved {
+    @apply font-medium text-human-mark;
+  }
+ 
+  /* CRITERION STATUS: pair each with its icon, never colour alone ------
+     meets   -> filled check
+     partial -> half-filled circle
+     unknown -> dashed hollow circle  ("Not evidenced")
+     unmet   -> slash                 (use rarely)                       */
+  .status {
+    @apply inline-flex items-center gap-1.5 rounded-md px-2 py-0.5 text-xs font-medium;
+  }
+  .status[data-status="meets"]   { @apply bg-status-meets-soft text-status-meets; }
+  .status[data-status="partial"] { @apply bg-status-partial-soft text-status-partial; }
+  .status[data-status="unknown"] { @apply bg-status-unknown-soft text-status-unknown; }
+  .status[data-status="unmet"]   { @apply bg-status-unmet-soft text-status-unmet; }
+ 
+  /* Icon colour helpers */
+  .status-icon[data-status="meets"]   { @apply text-status-meets; }
+  .status-icon[data-status="partial"] { @apply text-status-partial; }
+  .status-icon[data-status="unknown"] { @apply text-status-unknown; }
+  .status-icon[data-status="unmet"]   { @apply text-status-unmet; }
+ 
+  /* SPLIT-VIEW WORKSPACE ---------------------------------------------- */
+  .split-view {
+    @apply grid h-dvh grid-cols-[minmax(24rem,35rem)_1fr] overflow-hidden;
+  }
+  .split-view__assessment {
+    @apply overflow-y-auto border-r border-border bg-background;
+  }
+  .split-view__viewer {
+    @apply overflow-y-auto bg-viewer;
+  }
+  .pdf-page {
+    @apply mx-auto my-4 bg-viewer-page shadow-sm ring-1 ring-border;
+  }
+ 
+  @media (max-width: 1024px) {
+    .split-view {
+      @apply grid-cols-1 grid-rows-[1fr_1fr];
+    }
+    .split-view__assessment {
+      @apply border-r-0 border-b;
+    }
+  }
+ 
+  /* COMPARISON MATRIX: sticky header + sticky criterion column --------- */
+  .matrix {
+    @apply relative overflow-auto rounded-lg border border-border bg-card;
+  }
+  .matrix thead th {
+    @apply sticky top-0 z-10 bg-card text-left text-sm font-semibold;
+  }
+  .matrix tbody th {
+    @apply sticky left-0 z-[5] bg-card text-left text-sm font-medium;
+  }
+  .matrix th,
+  .matrix td {
+    @apply border-b border-border px-3 py-2 align-top;
+  }
+ 
+  /* BAND: 4-segment recommendation bar, deliberately small -------------- */
+  .band {
+    @apply inline-flex items-center gap-0.5;
+  }
+  .band > span {
+    @apply h-1.5 w-5 rounded-full bg-border;
+  }
+  .band[data-level="1"] > span:nth-child(-n + 1),
+  .band[data-level="2"] > span:nth-child(-n + 2),
+  .band[data-level="3"] > span:nth-child(-n + 3),
+  .band[data-level="4"] > span:nth-child(-n + 4) {
+    @apply bg-primary;
+  }
+}
+ 
+/* ------------------------------------------------------------------ */
+/* 6. Utilities                                                        */
+/* ------------------------------------------------------------------ */
+@utility tabular {
+  font-variant-numeric: tabular-nums;
+}
+ 
+/* ------------------------------------------------------------------ */
+/* 7. Reduced motion                                                   */
+/* ------------------------------------------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+  .evidence[data-active="true"] {
+    animation: none;
+  }
+  * {
+    scroll-behavior: auto !important;
+  }
+}
+
+
+@layer components {
+  .pv-redaction-bar {
+    background: repeating-linear-gradient(90deg, var(--pv-ink) 0 18px, transparent 18px 24px);
+    height: 6px;
+    border-radius: 2px;
+  }
+}
