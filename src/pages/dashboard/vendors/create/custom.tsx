@@ -13,7 +13,6 @@ import { deriveDefaultSccStatus } from "@/lib/utils/vendor";
 import { validateDpaDates } from "@/lib/utils/dpa-dates";
 import { getVendorLimitMessage } from "@/lib/utils/plan-limits";
 import { wrapError } from "@/lib/utils/request";
-import { useAuth } from "@clerk/react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Link, createRoute, useNavigate } from "@tanstack/react-router";
 import { ArrowLeftIcon, CircleNotchIcon } from "@phosphor-icons/react";
@@ -57,7 +56,6 @@ function buildWizardStateFromGlobalVendor(
 }
 
 export function CustomVendorWizardPage() {
-  const { getToken } = useAuth();
   const navigate = useNavigate();
   const { atLimit, plan } = useActiveVendorCount();
   const [globalVendorId] = useQueryState("globalVendor", parseAsString);
@@ -68,9 +66,7 @@ export function CustomVendorWizardPage() {
   const sessionQuery = useQuery({
     queryKey: ["current-user"],
     queryFn: async () => {
-      const token = await getToken({ skipCache: true });
-      if (!token) throw new Error("Missing session token");
-      return fetchCurrentUser(token);
+      return fetchCurrentUser();
     },
   });
 
@@ -78,10 +74,8 @@ export function CustomVendorWizardPage() {
     enabled: Boolean(globalVendorId),
     queryKey: ["global-vendor", globalVendorId],
     queryFn: async () => wrapError(async () => {
-      const token = await getToken({ skipCache: true });
-      if (!token) throw new Error("Missing session token");
       if (!globalVendorId) throw new Error("Missing global vendor id");
-      return fetchGlobalVendor(token, globalVendorId);
+      return fetchGlobalVendor(globalVendorId);
     }),
   });
 
@@ -117,8 +111,6 @@ export function CustomVendorWizardPage() {
 
   const createMutation = useMutation({
     mutationFn: async () => wrapError(async () => {
-      const token = await getToken({ skipCache: true });
-      if (!token) throw new Error("Missing session token");
 
       const hostingLocations = getValidHostingLocations(state);
       const subprocessors = getValidSubprocessors(state);
@@ -132,7 +124,7 @@ export function CustomVendorWizardPage() {
         throw new Error(dateError);
       }
 
-      return createVendor(token, {
+      return createVendor({
         name: state.name.trim(),
         logoUrl: state.logoUrl.trim() || null,
         notes: state.notes.trim() || undefined,

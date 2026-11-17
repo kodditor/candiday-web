@@ -5,7 +5,6 @@ import { updateVendor } from "@/lib/api/vendors";
 import { SubprocessorSourceTag } from "@/components/vendors/subprocessor-source-tag";
 import type { ISubprocessor } from "@/lib/types/vendor.type";
 import { wrapError } from "@/lib/utils/request";
-import { useAuth } from "@clerk/react";
 import { TrashIcon } from "@phosphor-icons/react";
 import { useMutation } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
@@ -63,7 +62,6 @@ export function EditSubprocessorsModal({
   subprocessors,
   onUpdated,
 }: EditSubprocessorsModalProps) {
-  const { getToken } = useAuth();
   const [orgSubprocessors, setOrgSubprocessors] = useState<EditableSubprocessor[]>([]);
   const [newName, setNewName] = useState("");
   const [newRegion, setNewRegion] = useState("");
@@ -112,13 +110,11 @@ export function EditSubprocessorsModal({
 
   const updateMutation = useMutation({
     mutationFn: async () => wrapError(async () => {
-      const token = await getToken({ skipCache: true });
-      if (!token) throw new Error("Missing session token");
 
       const error = validateEditableList(orgSubprocessors);
       if (error) throw new Error(error);
 
-      await updateVendor(token, vendorId, {
+      await updateVendor(vendorId, {
         customSubprocessors: nextPayload,
       });
     }),

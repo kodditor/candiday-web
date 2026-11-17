@@ -2,7 +2,7 @@ import * as yup from "yup";
 
 export const InviteTeamMemberInitialValues = {
   email: "",
-  role: "org:member",
+  role: "member",
 };
 
 export const InviteTeamMemberSchema = yup.object({
@@ -13,6 +13,6 @@ export const InviteTeamMemberSchema = yup.object({
     .required("Email is required"),
   role: yup
     .string()
-    .oneOf(["org:admin", "org:member"], "Select a valid role")
+    .oneOf(["admin", "member"], "Select a valid role")
     .required("Role is required"),
 });

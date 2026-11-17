@@ -8,7 +8,6 @@ import Modal from "@/components/ui/modal";
 import { fetchDataOwner, updateDataOwner } from "@/lib/api/data-owners";
 import { type AppMutation } from "@/lib/types/form.type";
 import { wrapError } from "@/lib/utils/request";
-import { useAuth } from "@clerk/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useFormik } from "formik";
 import { useQueryState } from "nuqs";
@@ -26,7 +25,6 @@ export function EditDataOwnerModal({
   closeModal,
   refetch,
 }: Props) {
-  const { getToken } = useAuth();
   const [id] = useQueryState("id");
   const queryClient = useQueryClient();
 
@@ -34,33 +32,23 @@ export function EditDataOwnerModal({
     enabled: Boolean(id && open),
     queryKey: ["data-owner", id],
     queryFn: async () => wrapError(async () => {
-      const token = await getToken({ skipCache: true });
-
-      if (!token) {
-        throw new Error("Missing session token");
-      }
 
       if (!id) {
         throw new Error("Missing data owner id");
       }
 
-      return fetchDataOwner(token, id);
+      return fetchDataOwner(id);
     }),
   });
 
   const mutate = useMutation({
     mutationFn: ({ values, helpers }: AppMutation) => wrapError(async () => {
-      const token = await getToken({ skipCache: true });
-
-      if (!token) {
-        throw new Error("Missing session token");
-      }
 
       if (!id) {
         throw new Error("Missing data owner id");
       }
 
-      await updateDataOwner(token, id, {
+      await updateDataOwner(id, {
         name: values.name,
         email: values.email,
         role: values.role || undefined,

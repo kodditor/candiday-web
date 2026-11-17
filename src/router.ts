@@ -6,7 +6,7 @@ import { ErrorComponent } from "./pages/error";
 import { SignupRoute } from "./pages/signup";
 import { LoginRoute } from "./pages/login";
 import { OnboardingRoute } from "./pages/onboarding";
-import { SSOCallbackRoute } from "./pages/sso-callback";
+import { AcceptInvitationRoute } from "./pages/accept-invitation";
 import { DashboardRootRoute } from "./pages/dashboard/root";
 import { DashboardIndexRoute } from "./pages/dashboard/index";
 import { DashboardDataOwnersRoute } from "./pages/dashboard/data-owners";
@@ -30,7 +30,9 @@ import { DashboardTrustPageRoute } from "./pages/dashboard/trust-page";
 import { DashboardTeamRoute } from "./pages/dashboard/team";
 import { DashboardSettingsRoute } from "./pages/dashboard/settings";
 import { DashboardSectionRoute } from "./pages/dashboard/section";
-import { PublicTrustPageRoute } from "./pages/trust";
+import { DashboardRolesIndexRoute } from "./pages/dashboard/roles/index";
+import { DashboardRoleNewRoute } from "./pages/dashboard/roles/new";
+import { DashboardRoleDetailRoute } from "./pages/dashboard/roles/view";
 
 export const rootRoute = createRootRoute({
   component: Root,
@@ -49,10 +51,12 @@ const routeTree = rootRoute.addChildren([
   SignupRoute,
   LoginRoute,
   OnboardingRoute,
-  SSOCallbackRoute,
-  PublicTrustPageRoute,
+  AcceptInvitationRoute,
   DashboardRootRoute.addChildren([
     DashboardIndexRoute,
+    DashboardRolesIndexRoute,
+    DashboardRoleNewRoute,
+    DashboardRoleDetailRoute,
     DashboardDataOwnersRoute,
     DashboardTrustPageRoute,
     DashboardTeamRoute,

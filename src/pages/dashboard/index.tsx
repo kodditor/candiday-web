@@ -1,30 +1,19 @@
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { RiskChip } from "@/components/ui/risk-chip";
+import { RoleList } from "@/components/roles/role-list";
+import { RoleListSkeleton } from "@/components/roles/role-list-skeleton";
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { VendorLogo } from "@/components/vendors/vendor-logo";
-import { fetchDashboardSummary } from "@/lib/api/dashboard";
-import { useUser } from "@/lib/context/user-context";
-import type { IVendor } from "@/lib/types/vendor.type";
-import { wrapError } from "@/lib/utils/request";
-import { formatCategoryLabel } from "@/lib/utils/vendor";
-import { useAuth, useUser as useClerkUser } from "@clerk/react";
-import { useQuery } from "@tanstack/react-query";
-import { Link, createRoute, useNavigate } from "@tanstack/react-router";
-import dayjs from "dayjs";
 import {
-  Building2,
-  FileText,
-  Globe,
-  Radar,
-  Sparkles,
-  UserCheck,
-} from "lucide-react";
+  fetchRoles,
+  fetchRolesSummary,
+  mapListItemToRole,
+  rolesQueryKeys,
+} from "@/lib/api/roles";
+import { useOrganizationId } from "@/lib/hooks/use-organization-id";
+import { BriefcaseIcon, PlusIcon } from "@phosphor-icons/react";
+import { useQuery } from "@tanstack/react-query";
+import { createRoute, Link } from "@tanstack/react-router";
+import { useEffect } from "react";
+import { toast } from "sonner";
 import { DashboardRootRoute } from "./root";
 
 export const DashboardIndexRoute = createRoute({
@@ -33,264 +22,160 @@ export const DashboardIndexRoute = createRoute({
   component: DashboardHome,
 });
 
-const gettingStartedSteps = [
-  {
-    title: "Add your first vendors",
-    description: "Start building your vendor inventory with owners and review cadence.",
-    icon: Building2,
-  },
-  {
-    title: "Upload DPAs",
-    description: "Attach data processing agreements and track renewal deadlines.",
-    icon: FileText,
-  },
-  {
-    title: "Assign data owners",
-    description: "Give each vendor an internal owner so nothing slips through the cracks.",
-    icon: UserCheck,
-  },
-  {
-    title: "Publish your trust page",
-    description: "Share a public page with your subprocessors and compliance posture.",
-    icon: Globe,
-  },
-];
-
-const upcomingFeatures = [
-  {
-    title: "Subprocessor monitoring",
-    description: "Get alerted when vendors change their subprocessors.",
-    icon: Radar,
-  },
-  {
-    title: "AI extraction",
-    description: "Pull key fields from DPAs automatically.",
-    icon: Sparkles,
-  },
-];
-
-const statLabels = ["Vendors", "DPAs tracked", "Reviews due"] as const;
-
-function getTimeOfDay() {
-  const hour = new Date().getHours();
-
-  if (hour < 12) return "morning";
-  if (hour < 17) return "afternoon";
-  if (hour < 22) return "evening";
-  return "night";
-}
-
-const latestVendorSkeletonCount = 5;
-
-function LatestVendorsSectionSkeleton() {
+function DashboardStats({
+  roleCount,
+  applicantCount,
+  loading,
+}: {
+  roleCount: number;
+  applicantCount: number;
+  loading?: boolean;
+}) {
   return (
-    <section className="space-y-4">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div className="space-y-2">
-          <Skeleton className="h-7 w-52" />
-          <Skeleton className="h-4 w-64 max-w-full" />
-        </div>
-        <Skeleton className="h-4 w-16" />
-      </div>
-
-      <Card className="overflow-hidden bg-white py-0">
-        <div className="divide-y divide-hairline/60">
-          {Array.from({ length: latestVendorSkeletonCount }).map((_, index) => (
-            <div
-              key={index}
-              className="flex w-full items-center gap-4 px-4 py-3"
-            >
-              <Skeleton className="size-8 shrink-0 rounded-lg" />
-              <div className="min-w-0 flex-1 space-y-1.5">
-                <Skeleton className="h-4 w-36 max-w-full" />
-                <Skeleton className="h-3 w-24 max-w-[60%]" />
-              </div>
-              <Skeleton className="h-6 w-14 shrink-0 rounded-sm" />
-              <Skeleton className="hidden h-3 w-20 shrink-0 sm:block" />
-            </div>
-          ))}
-        </div>
-      </Card>
-    </section>
+    <div className="grid grid-cols-2 gap-4">
+      {(["Roles", "Applicants"] as const).map((label, index) => {
+        const value = index === 0 ? roleCount : applicantCount;
+        return (
+          <div key={label} className="rounded-lg bg-white outline-[0.5px] outline-gray-300 px-6 py-5">
+            <p className="text-sm text-text-muted">{label}</p>
+            {loading ? (
+              <Skeleton className="mt-2 h-8 w-12" />
+            ) : (
+              <p className="mt-2 text-[28px] font-normal tabular-nums leading-tight tracking-tight text-ink">
+                {value}
+              </p>
+            )}
+          </div>
+        );
+      })}
+    </div>
   );
 }
 
-function LatestVendorsSection({ vendors }: { vendors: IVendor[] }) {
-  const navigate = useNavigate();
-
+function DashboardEmptyState() {
   return (
-    <section className="space-y-4">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h2 className="font-display text-xl font-semibold text-ink">
-            Latest Added Vendors
-          </h2>
-          <p className="mt-1 text-sm text-text-secondary">
-            Recently added to your vendor inventory.
-          </p>
-        </div>
-        <Link
-          to="/dashboard/vendors"
-          className="text-sm font-medium text-statute hover:underline"
-        >
-          View all
-        </Link>
-      </div>
-
-      <Card className="overflow-hidden bg-white py-0">
-        <div className="divide-y divide-hairline/60">
-          {vendors.map((vendor) => (
-            <button
-              key={vendor._id}
-              type="button"
-              className="flex w-full items-center gap-4 px-4 py-3 text-left transition-colors hover:bg-gray-50 hover:cursor-pointer"
-              onClick={() =>
-                navigate({
-                  to: "/dashboard/vendors/$id",
-                  params: { id: vendor._id },
-                })
-              }
-            >
-              <VendorLogo
-                name={vendor.name}
-                logoUrl={vendor.logoUrl}
-                size="sm"
-              />
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium text-ink">
-                  {vendor.name}
-                </p>
-                <p className="truncate text-xs text-text-secondary">
-                  {formatCategoryLabel(vendor.category, vendor.customCategoryLabel)}
-                </p>
-              </div>
-              <RiskChip tier={vendor.riskTier} />
-              <p className="hidden shrink-0 text-xs text-text-muted sm:block">
-                {dayjs(vendor.createdAt).format("DD MMM YYYY")}
-              </p>
-            </button>
-          ))}
-        </div>
-      </Card>
-    </section>
+    <div className="mt-12 rounded-lg border border-dashed border-hairline bg-white px-8 py-12 text-center">
+      <BriefcaseIcon
+        className="mx-auto size-6 text-text-muted"
+        weight="regular"
+        aria-hidden
+      />
+      <h2 className="mt-4 text-base font-medium text-ink">No jobs yet</h2>
+      <p className="mx-auto mt-2 max-w-xs text-sm text-text-muted">
+        Paste a job description to start reviewing CVs.
+      </p>
+      <Button asChild className="mt-6 h-10 px-4">
+        <Link to="/dashboard/roles/new">Create your first job</Link>
+      </Button>
+    </div>
   );
 }
 
 export function DashboardHome() {
-  const appUser = useUser((state) => state.user);
-  const { user: clerkUser } = useClerkUser();
-  const { getToken } = useAuth();
+  const organizationId = useOrganizationId();
+  const enabled = Boolean(organizationId);
 
   const summaryQuery = useQuery({
-    enabled: Boolean(appUser),
-    queryKey: ["dashboard-summary"],
-    queryFn: async () =>
-      wrapError(async () => {
-        const token = await getToken({ skipCache: true });
-        if (!token) throw new Error("Missing session token");
-        return fetchDashboardSummary(token);
-      }),
+    queryKey: rolesQueryKeys.summary(organizationId),
+    queryFn: () => fetchRolesSummary(),
+    enabled,
   });
 
-  const firstName =
-    appUser?.firstName ?? clerkUser?.firstName ?? "there";
+  const recentQuery = useQuery({
+    queryKey: rolesQueryKeys.recent(organizationId),
+    queryFn: () => fetchRoles({ limit: 5, archived: "false" }),
+    enabled,
+  });
 
-  const summary = summaryQuery.data;
-  const statValues = summary
-    ? [summary.vendorCount, summary.dpasTracked, summary.reviewsDue]
-    : null;
-  const showLatestVendors = (summary?.vendorCount ?? 0) > 1;
+  useEffect(() => {
+    if (summaryQuery.isError) {
+      toast.error(
+        summaryQuery.error instanceof Error
+          ? summaryQuery.error.message
+          : "Unable to load role stats.",
+      );
+    }
+  }, [summaryQuery.isError, summaryQuery.error]);
+
+  useEffect(() => {
+    if (recentQuery.isError) {
+      toast.error(
+        recentQuery.error instanceof Error
+          ? recentQuery.error.message
+          : "Unable to load recent roles.",
+      );
+    }
+  }, [recentQuery.isError, recentQuery.error]);
+
+  const summaryLoading = !enabled || summaryQuery.isLoading;
+  const recentLoading = !enabled || recentQuery.isLoading;
+
+  const activeRoleCount = summaryQuery.data?.activeRoleCount ?? 0;
+  const applicantCount = summaryQuery.data?.applicantsCount ?? 0;
+  const recentRoles =
+    recentQuery.data?.items.map(mapListItemToRole) ?? [];
+
+  const hasRoles = enabled && !summaryLoading && activeRoleCount > 0;
+  const showViewAll =
+    activeRoleCount > 5 || (recentQuery.data?.hasMore ?? false);
 
   return (
-    <div className="space-y-10">
-      <section className="space-y-3">
-        <h1 className="font-display text-3xl font-bold tracking-tight text-ink sm:text-4xl mt-3">
-          Good {getTimeOfDay()}, {firstName}
-        </h1>
-        <p className="max-w-2xl text-pretty text-base text-text-secondary">
-          Your workspace is ready. Start organizing vendor compliance, tracking
-          DPAs, and building your trust page from here.
-        </p>
-      </section>
+    <div className="space-y-12">
+      {hasRoles ? (
+        <>
+          <div className="flex items-center justify-between gap-4">
+            <h1 className="text-2xl font-medium tracking-tight text-ink">
+              Dashboard
+            </h1>
+            <Button asChild className="h-10 gap-2">
+              <Link to="/dashboard/roles/new">
+                <PlusIcon className="size-4" weight="bold" />
+                New role
+              </Link>
+            </Button>
+          </div>
 
-      <section className="grid gap-4 sm:grid-cols-3">
-        {statLabels.map((label, index) => (
-          <Card key={label} className="bg-white">
-            <CardHeader>
-              <CardDescription>{label}</CardDescription>
-              <CardTitle className="font-display text-3xl font-semibold tabular-nums">
-                {statValues ? (
-                  statValues[index]
-                ) : (
-                  <Skeleton className="h-9 w-10 rounded-md text-gray-200" /> 
-                )}
-              </CardTitle>
-            </CardHeader>
-          </Card>
-        ))}
-      </section>
+          <DashboardStats
+            roleCount={activeRoleCount}
+            applicantCount={applicantCount}
+            loading={summaryLoading}
+          />
 
-      {summaryQuery.isLoading ? (
-        <LatestVendorsSectionSkeleton />
-      ) :
-      showLatestVendors && summary ? (
-        <LatestVendorsSection vendors={summary.latestVendors} />
+          <section className="space-y-4">
+            <div className="flex items-baseline justify-between gap-3">
+              <h2 className="text-base font-medium text-ink">Recent roles</h2>
+              {showViewAll ? (
+                <Link
+                  to="/dashboard/roles"
+                  className="text-sm text-statute hover:underline"
+                >
+                  View all roles
+                </Link>
+              ) : null}
+            </div>
+
+            {recentLoading ? (
+              <RoleListSkeleton rows={5} />
+            ) : (
+              <RoleList roles={recentRoles} />
+            )}
+          </section>
+        </>
+      ) : summaryLoading ? (
+        <>
+          <DashboardStats roleCount={0} applicantCount={0} loading />
+          <RoleListSkeleton rows={5} />
+        </>
       ) : (
-        <section className="space-y-4">
-          <div>
-            <h2 className="font-display text-xl font-semibold text-ink">
-              Getting started
-            </h2>
-            <p className="mt-1 text-sm text-text-secondary">
-              Complete these steps to get the most out of ProcVault.
-            </p>
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-2">
-            {gettingStartedSteps.map((step) => (
-              <Card key={step.title} className="bg-white">
-                <CardHeader>
-                  <div className="mb-2 flex size-10 items-center justify-center rounded-lg bg-statute/10 text-statute">
-                    <step.icon className="size-5" />
-                  </div>
-                  <CardTitle>{step.title}</CardTitle>
-                  <CardDescription>{step.description}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-xs font-medium uppercase tracking-wide text-text-muted">
-                    Coming soon
-                  </p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </section>
+        <>
+          <DashboardStats
+            roleCount={0}
+            applicantCount={0}
+            loading={false}
+          />
+          <DashboardEmptyState />
+        </>
       )}
-
-      <section className="space-y-4">
-        <div>
-          <h2 className="font-display text-xl font-semibold text-ink">
-            Included in your plan
-          </h2>
-          <p className="mt-1 text-sm text-text-secondary">
-            These capabilities unlock as vendor management ships.
-          </p>
-        </div>
-
-        <div className="grid gap-4 md:grid-cols-2">
-          {upcomingFeatures.map((feature) => (
-            <Card key={feature.title} className="border-dashed bg-white">
-              <CardHeader>
-                <div className="mb-2 flex size-10 items-center justify-center rounded-lg border border-hairline bg-paper-raised text-statute">
-                  <feature.icon className="size-5" />
-                </div>
-                <CardTitle>{feature.title}</CardTitle>
-                <CardDescription>{feature.description}</CardDescription>
-              </CardHeader>
-            </Card>
-          ))}
-        </div>
-      </section>
     </div>
   );
 }

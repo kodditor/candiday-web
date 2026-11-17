@@ -1,4 +1,4 @@
-import { DashboardSidebar } from "@/components/layout/dashboard-sidebar";
+import { DashboardHeader } from "@/components/layout/dashboard-header";
 import type { ReactNode } from "react";
 
 type DashboardShellProps = {
@@ -8,12 +8,11 @@ type DashboardShellProps = {
 export function DashboardShell({ children }: DashboardShellProps) {
   return (
     <div className="min-h-screen bg-paper font-body text-text-primary antialiased">
-      <DashboardSidebar />
-
-      <div className="min-h-screen pl-[20rem] pr-[5%] py-10">
-        <div className="mx-auto max-w-5xl">
-          <main>{children}</main>
+      <div className="mx-auto w-full max-w-5xl px-6 py-5">
+        <div className="sticky top-4 z-50 mb-8">
+          <DashboardHeader />
         </div>
+        <main>{children}</main>
       </div>
     </div>
   );

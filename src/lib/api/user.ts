@@ -1,5 +1,7 @@
 import axios from "axios";
 import config from "@/config";
+import { api } from "@/lib/request";
+import { getApiErrorMessage } from "@/lib/api/errors";
 import type { ICurrentUser, ICurrentOrganization, MembershipStatus } from "@/lib/types/current-user.type";
 import type { AppRequest } from "@/lib/types/request.type";
 
@@ -26,7 +28,7 @@ export class CurrentUserRequestError extends Error {
 }
 
 export function isAuthFailure(error: unknown): boolean {
-  if (error instanceof Error && error.message === "Missing session token") {
+  if (error instanceof Error && error.message === "Missing session") {
     return true;
   }
 
@@ -36,19 +38,9 @@ export function isAuthFailure(error: unknown): boolean {
   );
 }
 
-export async function fetchCurrentUser(
-  token: string,
-): Promise<CurrentUserResponse> {
+export async function fetchCurrentUser(): Promise<CurrentUserResponse> {
   try {
-    const response = await axios.get<AppRequest<CurrentUserResponse>>(
-      `${config.api.url}/api/v1/users/me`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        timeout: 30000,
-      },
-    );
+    const response = await api.get<AppRequest<CurrentUserResponse>>("/users/me");
 
     if (!response.data.success || !response.data.data) {
       throw new CurrentUserRequestError("Invalid API response.", {
@@ -67,15 +59,13 @@ export async function fetchCurrentUser(
 
       if (!error.response) {
         throw new CurrentUserRequestError(
-          `Unable to reach the ProcVault API at ${config.api.url}. Check that the backend is running and VITE_API_URL is correct.`,
+          `Unable to reach the API at ${config.api.url}. Check that the backend is running and VITE_API_URL is correct.`,
           { isNetworkError: true },
         );
       }
 
       throw new CurrentUserRequestError(
-        typeof error.response.data?.error === "string"
-          ? error.response.data.error
-          : error.message,
+        getApiErrorMessage(error, error.message),
         { status },
       );
     }

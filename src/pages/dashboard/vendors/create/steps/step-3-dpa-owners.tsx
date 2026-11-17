@@ -15,7 +15,6 @@ import {
 import { deriveDefaultSccStatus } from "@/lib/utils/vendor";
 import { DPA_PDF_ACCEPT, isValidDpaPdfFile } from "@/lib/utils/dpa-file";
 import { uploadFile } from "@/lib/utils/upload";
-import { useAuth } from "@clerk/react";
 import { CircleNotchIcon, FileArrowUpIcon } from "@phosphor-icons/react";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
@@ -28,7 +27,6 @@ type Step3DpaOwnersProps = {
 };
 
 export function Step3DpaOwners({ state, onChange, plan }: Step3DpaOwnersProps) {
-  const { getToken } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const subscriptionPlan = parseSubscriptionPlan(plan);
@@ -49,8 +47,7 @@ export function Step3DpaOwners({ state, onChange, plan }: Step3DpaOwnersProps) {
     setUploading(true);
 
     try {
-      const token = await getToken({ skipCache: true });
-      const fileKey = await uploadFile(file, token, {
+      const fileKey = await uploadFile(file, {
         type: "dpas",
         protected: true,
       });

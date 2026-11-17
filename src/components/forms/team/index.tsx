@@ -13,8 +13,8 @@ type Props = {
 };
 
 const roleOptions = [
-  { label: formatOrgRole("org:member"), value: "org:member" },
-  { label: formatOrgRole("org:admin"), value: "org:admin" },
+  { label: formatOrgRole("member"), value: "member" },
+  { label: formatOrgRole("admin"), value: "admin" },
 ];
 
 export function InviteTeamMemberForm({ form }: Props) {

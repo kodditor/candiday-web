@@ -1,5 +1,4 @@
 import { useRef, useState } from "react";
-import { useAuth } from "@clerk/react";
 import { ImageIcon, TrashIcon, UploadSimpleIcon } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -35,7 +34,6 @@ export function ImageUploadField({
 }: ImageUploadFieldProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
-  const { getToken } = useAuth();
 
   const handleFileChange = async (file?: File) => {
     if (!file || disabled) return;
@@ -53,8 +51,7 @@ export function ImageUploadField({
     setIsUploading(true);
 
     try {
-      const token = await getToken();
-      const url = await uploadFile(file, token);
+      const url = await uploadFile(file);
       onChange(url);
     } catch (uploadError) {
       toast.error(

@@ -39,7 +39,7 @@ export function TeamMemberContainer({ datum }: Props) {
           <Label className="text-xs uppercase text-gray-700">
             {datum.type === "invitation" ? "Date invited" : "Date joined"}
           </Label>
-          <div className="text-sm">{dayjs(datum.createdAt).format("DD/MM/YYYY")}</div>
+          <div className="text-sm">{dayjs(datum.createdAt).format("D MMM YYYY")}</div>
         </div>
         <div>
           <Label className="text-xs uppercase text-gray-700">Type</Label>

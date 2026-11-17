@@ -3,7 +3,6 @@ import TextInput from "@/components/form/input";
 import { fetchDataOwners, createDataOwner } from "@/lib/api/data-owners";
 import type { IDataOwner } from "@/lib/types/data-owner.type";
 import { wrapError } from "@/lib/utils/request";
-import { useAuth } from "@clerk/react";
 import { MagnifyingGlassIcon, PlusIcon, XIcon } from "@phosphor-icons/react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
@@ -15,7 +14,6 @@ type DataOwnerPickerProps = {
 };
 
 export function DataOwnerPicker({ selectedIds, onChange }: DataOwnerPickerProps) {
-  const { getToken } = useAuth();
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
   const [showCreate, setShowCreate] = useState(false);
@@ -25,17 +23,13 @@ export function DataOwnerPicker({ selectedIds, onChange }: DataOwnerPickerProps)
   const ownersQuery = useQuery({
     queryKey: ["data-owners", search],
     queryFn: async () => wrapError(async () => {
-      const token = await getToken({ skipCache: true });
-      if (!token) throw new Error("Missing session token");
-      return fetchDataOwners(token, { query: search || undefined, limit: 20 });
+      return fetchDataOwners({ query: search || undefined, limit: 20 });
     }),
   });
 
   const createMutation = useMutation({
     mutationFn: async () => wrapError(async () => {
-      const token = await getToken({ skipCache: true });
-      if (!token) throw new Error("Missing session token");
-      return createDataOwner(token, {
+      return createDataOwner({
         name: newOwner.name.trim(),
         email: newOwner.email.trim(),
         role: newOwner.role.trim() || undefined,

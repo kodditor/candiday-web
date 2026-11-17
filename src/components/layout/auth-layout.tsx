@@ -1,5 +1,14 @@
 import { Link } from "@tanstack/react-router";
 import { cn } from "@/lib/utils";
+import { bodyFont, displayFont } from "@/lib/typography";
+
+export type AuthAsideContent = {
+  eyebrow?: string;
+  title?: string;
+  body?: string;
+  footer?: string;
+  showHeroImage?: boolean;
+};
 
 type AuthLayoutProps = {
   title: string;
@@ -7,6 +16,15 @@ type AuthLayoutProps = {
   children: React.ReactNode;
   footer?: React.ReactNode;
   className?: string;
+  aside?: AuthAsideContent;
+};
+
+const defaultAside: AuthAsideContent = {
+  eyebrow: "Evidence-backed CV review",
+  title: "The right candidate is in there. Find them faster.",
+  body: "Upload your job description and CVs. Review every applicant against criteria you approve—with the evidence beside each decision.",
+  footer: "Candiday shows the evidence. Your team makes the decision.",
+  showHeroImage: true,
 };
 
 export function AuthLayout({
@@ -15,62 +33,72 @@ export function AuthLayout({
   children,
   footer,
   className,
+  aside,
 }: AuthLayoutProps) {
+  const panel = { ...defaultAside, ...aside };
+
   return (
-    <div className="min-h-screen bg-paper font-body antialiased">
+    <div className={cn("min-h-screen bg-background antialiased", bodyFont)}>
       <div className="grid min-h-screen lg:grid-cols-[1fr_1.1fr]">
-        <aside className="relative hidden overflow-hidden bg-statute px-10 py-12 text-primary-foreground lg:flex lg:flex-col lg:justify-between">
+        <aside className="relative hidden overflow-hidden bg-primary px-10 py-12 text-white lg:flex lg:flex-col lg:justify-between">
           <div>
-            <Link to="/" className="inline-flex items-center">
-              <img
-                src="/wordmark-white.png"
-                alt="ProcVault"
-                className="h-8"
-                fetchPriority="high"
-              />
+            <Link to="/" className={cn("inline-flex text-2xl text-white", displayFont)}>
+              Candiday
             </Link>
           </div>
           <div className="max-w-md space-y-4">
-            <p className="text-sm font-medium uppercase tracking-[0.2em] text-primary-foreground/70">
-              Vendor compliance
-            </p>
-            <h1 className="text-balance font-display text-4xl font-bold leading-tight">
-              Track GDPR vendor compliance without the spreadsheet.
-            </h1>
-            <p className="text-pretty text-base leading-relaxed text-primary-foreground/80">
-              DPAs, subprocessors, and review deadlines in one place for lean legal and ops teams.
-            </p>
+            {panel.eyebrow ? (
+              <p className="text-sm font-medium uppercase tracking-[0.2em] text-white/70">
+                {panel.eyebrow}
+              </p>
+            ) : null}
+            {panel.title ? (
+              <h1
+                className={cn(
+                  "text-balance text-4xl leading-tight text-white",
+                  displayFont,
+                )}
+              >
+                {panel.title}
+              </h1>
+            ) : null}
+            {panel.body ? (
+              <p className="text-pretty text-base leading-relaxed text-white/85">
+                {panel.body}
+              </p>
+            ) : null}
+            {panel.showHeroImage !== false ? (
+              <img
+                src="/cv-stack.webp"
+                alt=""
+                className="mt-6 h-auto w-full max-w-sm opacity-90"
+                decoding="async"
+              />
+            ) : null}
           </div>
-          <p className="text-xs text-primary-foreground/60">
-            ProcVault organizes and tracks vendor compliance data. It does not provide legal advice.
-          </p>
+          {panel.footer ? (
+            <p className="text-xs text-white/65">{panel.footer}</p>
+          ) : null}
         </aside>
 
         <div className="flex flex-col px-[5%] py-8 sm:py-12">
           <div className="mb-8 flex justify-center lg:hidden">
-            <Link to="/">
-              <img
-                src="/wordmark.png"
-                alt="ProcVault"
-                className="h-8"
-                fetchPriority="high"
-              />
+            <Link to="/" className={cn("text-2xl text-foreground", displayFont)}>
+              Candiday
             </Link>
           </div>
 
           <div className="mx-auto flex w-full max-w-xl flex-1 flex-col justify-center">
             <div className="mb-8 text-center lg:text-left">
-              <h2 className="text-balance font-display text-3xl font-bold text-ink">
+              <h2 className={cn("text-balance text-3xl text-foreground", displayFont)}>
                 {title}
               </h2>
-              <p className="mt-2 text-pretty text-sm text-text-secondary">
-                {subtitle}
-              </p>
+              <p className="mt-2 text-pretty text-sm text-muted-foreground">{subtitle}</p>
             </div>
 
             <div
               className={cn(
-                "rounded-2xl border border-hairline bg-paper-raised p-6 shadow-[0_1px_2px_rgba(26,27,30,0.04),0_8px_24px_rgba(26,27,30,0.06)] sm:p-8",
+                "rounded-2xl border border-border bg-card p-6 shadow-sm sm:p-8",
                 className,
               )}
             >
@@ -78,9 +106,7 @@ export function AuthLayout({
             </div>
 
             {footer ? (
-              <div className="mt-6 text-center text-sm text-text-secondary">
-                {footer}
-              </div>
+              <div className="mt-6 text-center text-sm text-muted-foreground">{footer}</div>
             ) : null}
           </div>
         </div>

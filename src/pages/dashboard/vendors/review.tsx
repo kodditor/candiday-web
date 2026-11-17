@@ -18,7 +18,6 @@ import {
 } from "@/lib/utils/dpa-dates";
 import { wrapError } from "@/lib/utils/request";
 import { uploadFile } from "@/lib/utils/upload";
-import { useAuth } from "@clerk/react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, createRoute, useNavigate } from "@tanstack/react-router";
 import {
@@ -71,7 +70,6 @@ export function VendorReviewPage() {
   const { id } = DashboardVendorReviewRoute.useParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { getToken } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [form, setForm] = useState<ReviewFormState | null>(null);
@@ -79,9 +77,7 @@ export function VendorReviewPage() {
   const vendorQuery = useQuery({
     queryKey: ["vendor", id],
     queryFn: async () => wrapError(async () => {
-      const token = await getToken({ skipCache: true });
-      if (!token) throw new Error("Missing session token");
-      return fetchVendor(token, id);
+      return fetchVendor(id);
     }),
   });
 
@@ -95,8 +91,6 @@ export function VendorReviewPage() {
 
   const submitMutation = useMutation({
     mutationFn: async () => wrapError(async () => {
-      const token = await getToken({ skipCache: true });
-      if (!token) throw new Error("Missing session token");
       if (!form) throw new Error("Form not initialized");
 
       const payload = {
@@ -109,7 +103,7 @@ export function VendorReviewPage() {
         notes: form.notes,
       };
 
-      return submitDpaReview(token, id, payload);
+      return submitDpaReview(id, payload);
     }),
     onSuccess: async (data) => {
       queryClient.setQueryData(["vendor", id], data);
@@ -124,9 +118,7 @@ export function VendorReviewPage() {
 
   const viewDpaMutation = useMutation({
     mutationFn: async (fileKey: string) => wrapError(async () => {
-      const token = await getToken({ skipCache: true });
-      if (!token) throw new Error("Missing session token");
-      return fetchDpaAssetUrl(token, fileKey);
+      return fetchDpaAssetUrl(fileKey);
     }),
     onSuccess: ({ url }) => {
       window.open(url, "_blank", "noopener,noreferrer");
@@ -145,8 +137,7 @@ export function VendorReviewPage() {
     setUploading(true);
 
     try {
-      const token = await getToken({ skipCache: true });
-      const fileKey = await uploadFile(file, token, {
+      const fileKey = await uploadFile(file, {
         type: "dpas",
         protected: true,
       });

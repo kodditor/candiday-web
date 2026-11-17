@@ -5,7 +5,6 @@ import { fetchDataOwners } from "@/lib/api/data-owners";
 import { useUser } from "@/lib/context/user-context";
 import { type IDataOwner } from "@/lib/types/data-owner.type";
 import { wrapError } from "@/lib/utils/request";
-import { useAuth } from "@clerk/react";
 import { PlusIcon, UserCheckIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { createRoute } from "@tanstack/react-router";
@@ -25,7 +24,6 @@ export const DashboardDataOwnersRoute = createRoute({
 
 export function DataOwnersPage() {
   const user = useUser((state) => state.user);
-  const { getToken } = useAuth();
 
   const [modal, setModal] = useQueryState("modal");
   const [query] = useQueryState("query");
@@ -45,13 +43,8 @@ export function DataOwnersPage() {
     queryKey: ["data-owners", query, page, limit],
     gcTime: 0,
     queryFn: async () => wrapError(async () => {
-      const token = await getToken({ skipCache: true });
 
-      if (!token) {
-        throw new Error("Missing session token");
-      }
-
-      return fetchDataOwners(token, { query, page, limit });
+      return fetchDataOwners({ query, page, limit });
     }),
   });
 

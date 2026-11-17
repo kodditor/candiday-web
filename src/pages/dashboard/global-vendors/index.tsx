@@ -4,7 +4,6 @@ import { useUser } from "@/lib/context/user-context";
 import type { IGlobalVendor } from "@/lib/types/global-vendor.type";
 import { formatCategoryLabel } from "@/lib/utils/vendor";
 import { wrapError } from "@/lib/utils/request";
-import { useAuth } from "@clerk/react";
 import { useQuery } from "@tanstack/react-query";
 import { createRoute, Outlet, useNavigate } from "@tanstack/react-router";
 import { parseAsInteger, useQueryState } from "nuqs";
@@ -25,7 +24,6 @@ export const DashboardGlobalVendorsIndexRoute = createRoute({
 
 export function GlobalVendorsPage() {
   const user = useUser((state) => state.user);
-  const { getToken } = useAuth();
   const navigate = useNavigate();
   const [page] = useQueryState("page", parseAsInteger.withDefault(1));
   const [limit] = useQueryState("limit", parseAsInteger.withDefault(10));
@@ -36,9 +34,7 @@ export function GlobalVendorsPage() {
     queryKey: ["global-vendors", query, page, limit],
     gcTime: 0,
     queryFn: async () => wrapError(async () => {
-      const token = await getToken({ skipCache: true });
-      if (!token) throw new Error("Missing session token");
-      return fetchGlobalVendors(token, { query, page, limit });
+      return fetchGlobalVendors({ query, page, limit });
     }),
   });
 

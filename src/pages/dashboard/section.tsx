@@ -1,9 +1,9 @@
-import { dashboardNavItems } from "@/components/layout/dashboard-sidebar";
+import { dashboardPillNavItems } from "@/components/layout/dashboard-header";
 import { createRoute } from "@tanstack/react-router";
 import { DashboardRootRoute } from "./root";
 
 const sectionTitles = Object.fromEntries(
-  dashboardNavItems.map((item) => [item.section, item.label]),
+  dashboardPillNavItems.map((item) => [item.section, item.label]),
 );
 
 export const DashboardSectionRoute = createRoute({

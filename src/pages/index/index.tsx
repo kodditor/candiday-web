@@ -4,9 +4,10 @@ import config from "@/config";
 import { cn } from "@/lib/utils";
 import { Link } from "@tanstack/react-router";
 import type { ReactNode } from "react";
+import { bodyFont, displayFont } from "@/lib/typography";
 
-const display = "font-['Barlow_Condensed',system-ui,sans-serif] font-semibold tracking-tight text-foreground";
-const body = "font-['Barlow',system-ui,sans-serif] text-foreground";
+const display = displayFont;
+const body = bodyFont;
 
 const steps = [
   {
@@ -111,7 +112,7 @@ function Section({
 
 function EarlyAccessButton({ className, variant = "default" }: { className?: string, variant?: "default" | "secondary" | "outline" | "neutral"}) {
   return (
-    <Link to={config.clerk.signUpUrl} className="inline-flex items-center">
+    <Link to={config.auth.signUpUrl} className="inline-flex items-center">
       <Button size="lg" className={cn("text-base font-semibold", className)} variant={variant}>
         Get Early Access
       </Button>
@@ -218,7 +219,7 @@ function AudienceSection() {
               Built for teams who hire without a big recruiting stack.
             </h2>
             <p className="text-base leading-7 lg:w-[52%] lg:text-lg">
-              Growing businesses and small recruitment teams who need a faster,
+              Growing businesses and recruitment teams who need a faster,
               more consistent first pass without adopting a full applicant
               tracking system.
             </p>
@@ -258,7 +259,7 @@ function LandingNav() {
         </Link>
         <div className="flex items-center gap-2 sm:gap-4">
           <Link
-            to={config.clerk.signInUrl}
+            to={config.auth.signInUrl}
             search={{ redirect_to: undefined }}
             className="inline-flex items-center"
           >
@@ -364,7 +365,7 @@ export function HomePage() {
 
       <Section className="py-16 lg:py-[104px]" id="faq">
         <h2 className={cn(display, "text-3xl leading-tight tracking-[-0.03em] md:text-[44px] md:leading-[48px]")}>
-          Questions
+          Got Questions?
         </h2>
         <div className="mt-7 max-w-[860px]">
           <FAQSection items={faqItems} />

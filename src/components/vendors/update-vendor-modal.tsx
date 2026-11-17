@@ -15,7 +15,6 @@ import type {
   VendorCategory,
 } from "@/lib/types/vendor.type";
 import { wrapError } from "@/lib/utils/request";
-import { useAuth } from "@clerk/react";
 import { useMutation } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
@@ -81,7 +80,6 @@ export function UpdateVendorModal({
   vendor,
   onUpdated,
 }: UpdateVendorModalProps) {
-  const { getToken } = useAuth();
   const [form, setForm] = useState<FormState>(() => buildInitialState(vendor));
 
   useEffect(() => {
@@ -99,13 +97,11 @@ export function UpdateVendorModal({
 
   const updateMutation = useMutation({
     mutationFn: async () => wrapError(async () => {
-      const token = await getToken({ skipCache: true });
-      if (!token) throw new Error("Missing session token");
 
       const error = validateForm(form);
       if (error) throw new Error(error);
 
-      await updateVendor(token, vendor._id, {
+      await updateVendor(vendor._id, {
         overview: {
           name: form.name.trim(),
           logoUrl: form.logoUrl.trim() || null,

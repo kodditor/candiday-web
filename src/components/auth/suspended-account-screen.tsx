@@ -1,6 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { useClerk } from "@clerk/react";
+import { signOut } from "@/lib/auth/session";
 import { ProhibitIcon } from "@phosphor-icons/react";
 import { useState } from "react";
 
@@ -13,7 +13,6 @@ export function SuspendedAccountScreen({
   plan,
   status = "Suspended",
 }: SuspendedAccountScreenProps) {
-  const { signOut } = useClerk();
   const [isSigningOut, setIsSigningOut] = useState(false);
 
   const isDeleted = status === "Deleted";
@@ -32,7 +31,7 @@ export function SuspendedAccountScreen({
   const handleSignOut = async () => {
     setIsSigningOut(true);
     try {
-      await signOut({ redirectUrl: "/auth/login" });
+      await signOut();
     } finally {
       setIsSigningOut(false);
     }

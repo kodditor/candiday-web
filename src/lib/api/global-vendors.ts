@@ -1,5 +1,5 @@
-import axios from "axios";
-import config from "@/config";
+import { api } from "@/lib/request";
+import { getApiErrorMessage } from "@/lib/api/errors";
 import type {
   IGlobalVendor,
   ListGlobalVendorsParams,
@@ -7,30 +7,7 @@ import type {
 import type { AppRequest, PaginatedResponse } from "@/lib/types/request.type";
 import qs from "qs";
 
-function getApiErrorMessage(error: unknown, fallback: string): string {
-  if (axios.isAxiosError(error)) {
-    const data = error.response?.data as AppRequest<unknown> | undefined;
-    if (data && !data.success && data.error) return data.error;
-    if (data?.message) return data.message;
-    if (error.message) return error.message;
-  }
-
-  if (error instanceof Error && error.message) {
-    return error.message;
-  }
-
-  return fallback;
-}
-
-function authHeaders(token: string) {
-  return {
-    Authorization: `Bearer ${token}`,
-    "Content-Type": "application/json",
-  };
-}
-
 export async function fetchGlobalVendors(
-  token: string,
   params: ListGlobalVendorsParams = {},
 ): Promise<PaginatedResponse<IGlobalVendor>> {
   try {
@@ -40,12 +17,8 @@ export async function fetchGlobalVendors(
       limit: params.limit,
     });
 
-    const response = await axios.get<AppRequest<PaginatedResponse<IGlobalVendor>>>(
-      `${config.api.url}/api/v1/global-vendors?${queryString}`,
-      {
-        headers: authHeaders(token),
-        timeout: 30000,
-      },
+    const response = await api.get<AppRequest<PaginatedResponse<IGlobalVendor>>>(
+      `/global-vendors?${queryString}`,
     );
 
     if (!response.data.success || !response.data.data) {
@@ -62,17 +35,10 @@ export async function fetchGlobalVendors(
   }
 }
 
-export async function fetchGlobalVendor(
-  token: string,
-  id: string,
-): Promise<IGlobalVendor> {
+export async function fetchGlobalVendor(id: string): Promise<IGlobalVendor> {
   try {
-    const response = await axios.get<AppRequest<IGlobalVendor>>(
-      `${config.api.url}/api/v1/global-vendors/${id}`,
-      {
-        headers: authHeaders(token),
-        timeout: 30000,
-      },
+    const response = await api.get<AppRequest<IGlobalVendor>>(
+      `/global-vendors/${id}`,
     );
 
     if (!response.data.success || !response.data.data) {

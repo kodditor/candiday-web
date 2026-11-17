@@ -1,12 +1,8 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import { useUser as useAppUser } from "@/lib/context/user-context";
 import { cn } from "@/lib/utils";
-import {
-  useOrganization,
-  useOrganizationList,
-  useUser as useClerkUser,
-  UserButton,
-} from "@clerk/react";
+import { signOut, useSession } from "@/lib/auth/session";
 import { Link, useRouterState } from "@tanstack/react-router";
 import {
   Building2,
@@ -18,7 +14,6 @@ import {
   Users,
   type LucideIcon,
 } from "lucide-react";
-import { useEffect } from "react";
 
 export type DashboardNavItem = {
   label: string;
@@ -75,29 +70,13 @@ export const dashboardNavItems: DashboardNavItem[] = [
 ];
 
 export function DashboardSidebar() {
-  const { organization: clerkOrganization } = useOrganization();
-  const { user: clerkUser } = useClerkUser();
+  const { data: session } = useSession();
   const appUser = useAppUser((state) => state.user);
   const appOrganization = useAppUser((state) => state.organization);
-  const { userMemberships, setActive, isLoaded } = useOrganizationList({
-    userMemberships: {
-      infinite: true,
-    },
-  });
   const pathname = useRouterState({ select: (state) => state.location.pathname });
 
-  const membershipOrganization =
-    userMemberships.data?.[0]?.organization ?? null;
-  const activeClerkOrganization = clerkOrganization ?? membershipOrganization;
-
-  const orgName =
-    appOrganization?.name
-    ?? activeClerkOrganization?.name
-    ?? "Your organization";
-  const orgLogo =
-    appOrganization?.logoUrl
-    ?? activeClerkOrganization?.imageUrl
-    ?? undefined;
+  const orgName = appOrganization?.name ?? "Your organization";
+  const orgLogo = appOrganization?.logoUrl ?? undefined;
   const orgInitials = orgName
     .split(" ")
     .map((part) => part[0])
@@ -107,17 +86,11 @@ export function DashboardSidebar() {
 
   const userName =
     [appUser?.firstName, appUser?.lastName].filter(Boolean).join(" ") ||
-    clerkUser?.fullName ||
-    clerkUser?.firstName ||
+    session?.user.name ||
+    session?.user.email ||
     "Account";
 
-  useEffect(() => {
-    if (!isLoaded || clerkOrganization || !membershipOrganization) {
-      return;
-    }
-
-    void setActive({ organization: membershipOrganization.id });
-  }, [isLoaded, clerkOrganization, membershipOrganization, setActive]);
+  const userImage = appUser?.imageUrl ?? session?.user.image ?? undefined;
 
   return (
     <aside
@@ -171,16 +144,27 @@ export function DashboardSidebar() {
 
       <div className="mt-auto space-y-4 pt-4">
         <div className="flex items-center gap-3 px-2">
+          <Avatar className="size-9">
+            <AvatarImage src={userImage ?? undefined} alt={userName} />
+            <AvatarFallback>{userName.slice(0, 2).toUpperCase()}</AvatarFallback>
+          </Avatar>
           <p className="min-w-0 flex-1 truncate text-sm font-medium text-ink">
             {userName}
           </p>
-          <UserButton
-            appearance={{
-              elements: {
-                avatarBox: "size-9",
-              },
+        </div>
+        <div className="flex flex-col gap-2 px-2">
+          <Button variant="outline" size="sm" asChild>
+            <Link to="/dashboard/settings">Account settings</Link>
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              void signOut();
             }}
-          />
+          >
+            Sign out
+          </Button>
         </div>
 
         <div className="px-2">

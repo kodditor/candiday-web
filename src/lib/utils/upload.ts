@@ -7,7 +7,6 @@ export type UploadOptions = {
 
 export async function uploadFile(
   file: File,
-  token?: string | null,
   opts?: UploadOptions,
 ): Promise<string> {
   const formData = new FormData();
@@ -24,7 +23,6 @@ export async function uploadFile(
   const response = await api.post("/assets/upload", formData, {
     headers: {
       "Content-Type": "multipart/form-data",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
   });
 

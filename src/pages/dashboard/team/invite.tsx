@@ -5,10 +5,9 @@ import {
 } from "@/components/forms/team";
 import { Button } from "@/components/ui/button";
 import Modal from "@/components/ui/modal";
+import { authClient } from "@/lib/auth/client";
 import { type AppMutation } from "@/lib/types/form.type";
 import { wrapError } from "@/lib/utils/request";
-import { useOrganization } from "@clerk/react";
-import { isClerkAPIResponseError } from "@clerk/react/errors";
 import { useMutation } from "@tanstack/react-query";
 import { useFormik } from "formik";
 import { toast } from "sonner";
@@ -20,14 +19,6 @@ type Props = {
 };
 
 function resolveInviteError(error: unknown): string {
-  if (isClerkAPIResponseError(error)) {
-    const message = error.errors[0]?.longMessage ?? error.errors[0]?.message;
-
-    if (message) {
-      return message;
-    }
-  }
-
   if (error instanceof Error && error.message) {
     return error.message;
   }
@@ -40,19 +31,19 @@ export function InviteTeamMemberModal({
   closeModal,
   onInvited,
 }: Props) {
-  const { organization } = useOrganization();
-
   const mutate = useMutation({
     mutationFn: ({ values, helpers }: AppMutation<{ email: string; role: string }>) =>
       wrapError(async () => {
-        if (!organization) {
-          throw new Error("No active organization selected");
-        }
-
-        await organization.inviteMember({
-          emailAddress: values.email.trim(),
-          role: values.role,
+        const role =
+          values.role === "admin" || values.role === "org:admin" ? "admin" : "member";
+        const { error } = await authClient.organization.inviteMember({
+          email: values.email.trim(),
+          role,
         });
+
+        if (error) {
+          throw new Error(error.message ?? "Unable to send invitation.");
+        }
 
         await onInvited?.();
         closeModal();
@@ -77,7 +68,7 @@ export function InviteTeamMemberModal({
       title="Add member"
       renderActions={() => (
         <Button
-          disabled={!form.isValid || form.isSubmitting || !organization}
+          disabled={!form.isValid || form.isSubmitting}
           onClick={() => form.submitForm()}
           loading={form.isSubmitting}
         >

@@ -9,7 +9,6 @@ import type { IVendor } from "@/lib/types/vendor.type";
 import { getVendorLimitMessage } from "@/lib/utils/plan-limits";
 import { formatCategoryLabel } from "@/lib/utils/vendor";
 import { wrapError } from "@/lib/utils/request";
-import { useAuth } from "@clerk/react";
 import { PlusIcon } from "@phosphor-icons/react";
 import lodash from "lodash";
 import { useQuery } from "@tanstack/react-query";
@@ -33,7 +32,6 @@ export const DashboardVendorsIndexRoute = createRoute({
 
 export function VendorsPage() {
   const user = useUser((state) => state.user);
-  const { getToken } = useAuth();
   const navigate = useNavigate();
   const { atLimit, plan } = useActiveVendorCount();
   const [page] = useQueryState("page", parseAsInteger.withDefault(1));
@@ -45,9 +43,7 @@ export function VendorsPage() {
     queryKey: ["vendors", query, page, limit],
     gcTime: 0,
     queryFn: async () => wrapError(async () => {
-      const token = await getToken({ skipCache: true });
-      if (!token) throw new Error("Missing session token");
-      return fetchVendors(token, { query, page, limit });
+      return fetchVendors({ query, page, limit });
     }),
   });
 

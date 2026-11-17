@@ -12,7 +12,6 @@ import { Button } from "@/components/ui/button";
 import Modal from "@/components/ui/modal";
 import { archiveDataOwner, fetchDataOwner } from "@/lib/api/data-owners";
 import { wrapError } from "@/lib/utils/request";
-import { useAuth } from "@clerk/react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useQueryState } from "nuqs";
 import { useState } from "react";
@@ -29,7 +28,6 @@ export function ViewDataOwnerModal({
   closeModal,
   refetch,
 }: Props) {
-  const { getToken } = useAuth();
   const [id] = useQueryState("id");
   const [, setModal] = useQueryState("modal");
   const [archiveOpen, setArchiveOpen] = useState(false);
@@ -38,33 +36,23 @@ export function ViewDataOwnerModal({
     enabled: Boolean(id && open),
     queryKey: ["data-owner", id],
     queryFn: async () => wrapError(async () => {
-      const token = await getToken({ skipCache: true });
-
-      if (!token) {
-        throw new Error("Missing session token");
-      }
 
       if (!id) {
         throw new Error("Missing data owner id");
       }
 
-      return fetchDataOwner(token, id);
+      return fetchDataOwner(id);
     }),
   });
 
   const archiveMutation = useMutation({
     mutationFn: async () => wrapError(async () => {
-      const token = await getToken({ skipCache: true });
-
-      if (!token) {
-        throw new Error("Missing session token");
-      }
 
       if (!id) {
         throw new Error("Missing data owner id");
       }
 
-      await archiveDataOwner(token, id);
+      await archiveDataOwner(id);
       setArchiveOpen(false);
       closeModal();
       refetch?.();

@@ -32,7 +32,7 @@ export default function Navigation() {
                 Log in
               </Button>
             </Link>
-            <Link to={config.clerk.signUpUrl}>
+            <Link to={config.auth.signUpUrl}>
               <Button className="text-sm">{getPrimaryCtaLabel()}</Button>
             </Link>
           </div>

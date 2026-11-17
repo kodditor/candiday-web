@@ -32,7 +32,6 @@ import type {
 import { formatCategoryLabel } from "@/lib/utils/vendor";
 import { isValidSlug } from "@/lib/utils/slug";
 import { wrapError } from "@/lib/utils/request";
-import { useAuth } from "@clerk/react";
 import {
   ArrowSquareOutIcon,
   ArrowDownIcon,
@@ -82,7 +81,6 @@ function toSectionInput(section: TrustPageSection, vendors: TrustPageVendor[]): 
 }
 
 function TrustPageSettingsPage() {
-  const { getToken } = useAuth();
   const queryClient = useQueryClient();
   const [slugDraft, setSlugDraft] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -97,9 +95,7 @@ function TrustPageSettingsPage() {
   const settingsQuery = useQuery({
     queryKey: ["trust-page-settings"],
     queryFn: async () => wrapError(async () => {
-      const token = await getToken({ skipCache: true });
-      if (!token) throw new Error("Missing session token");
-      return fetchTrustPageSettings(token);
+      return fetchTrustPageSettings();
     }),
   });
 
@@ -141,9 +137,7 @@ function TrustPageSettingsPage() {
       showSubprocessorHistory?: boolean;
       layout?: TrustPageLayout;
     }) => {
-      const token = await getToken({ skipCache: true });
-      if (!token) throw new Error("Missing session token");
-      return updateTrustPageSettings(token, payload);
+      return updateTrustPageSettings(payload);
     },
     onSuccess: (data) => {
       queryClient.setQueryData(["trust-page-settings"], data);
@@ -157,9 +151,7 @@ function TrustPageSettingsPage() {
 
   const sectionsMutation = useMutation({
     mutationFn: async (nextSections: TrustPageSectionInput[]) => {
-      const token = await getToken({ skipCache: true });
-      if (!token) throw new Error("Missing session token");
-      return updateTrustPageSections(token, { sections: nextSections });
+      return updateTrustPageSections({ sections: nextSections });
     },
     onSuccess: (data) => {
       queryClient.setQueryData(["trust-page-settings"], data);
@@ -174,9 +166,7 @@ function TrustPageSettingsPage() {
 
   const publishMutation = useMutation({
     mutationFn: async () => {
-      const token = await getToken({ skipCache: true });
-      if (!token) throw new Error("Missing session token");
-      return publishTrustPage(token);
+      return publishTrustPage();
     },
     onSuccess: (data) => {
       queryClient.setQueryData(["trust-page-settings"], data);
@@ -190,9 +180,7 @@ function TrustPageSettingsPage() {
 
   const toggleVendorMutation = useMutation({
     mutationFn: async ({ vendorId, included }: { vendorId: string; included: boolean }) => {
-      const token = await getToken({ skipCache: true });
-      if (!token) throw new Error("Missing session token");
-      await updateVendor(token, vendorId, {
+      await updateVendor(vendorId, {
         trustPage: { included },
       });
       return { vendorId, included };

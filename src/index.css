@@ -102,6 +102,29 @@
   /* Voices */
   --ai-label: oklch(0.5 0.015 190);           /* quiet "AI-assessed" tag */
   --human-mark: oklch(0.38 0.07 190);         /* approved / decided by recruiter */
+
+  /*
+   * Bridge tokens for tailwind.config.js (ink, paper, hairline, statute, text-*).
+   * Without these, bg-paper-raised / bg-paper resolve to transparent.
+   */
+  --pv-paper: oklch(0.985 0.002 97);            /* ~#FAFAF9 page */
+  --pv-paper-raised: oklch(0.958 0.003 97);     /* ~#F4F4F3 tiles & pill track */
+  --pv-hairline: oklch(0.91 0.004 97);          /* hairline borders */
+  --pv-ink: oklch(0.24 0.015 190);
+  --pv-text-primary: oklch(0.24 0.015 190);
+  --pv-text-secondary: oklch(0.45 0.012 190);
+  --pv-text-muted: oklch(0.55 0.01 90);         /* ~#737373 */
+  --pv-statute: oklch(0.546 0.215 262);         /* link accent ~#2563EB */
+  --pv-statute-hover: oklch(0.488 0.2 262);
+  --pv-risk-low: oklch(0.45 0.09 185);
+  --pv-risk-low-bg: oklch(0.94 0.03 185);
+  --pv-risk-medium: oklch(0.62 0.14 70);
+  --pv-risk-medium-bg: oklch(0.95 0.045 85);
+  --pv-risk-high: oklch(0.5 0.13 40);
+  --pv-risk-high-bg: oklch(0.95 0.025 40);
+  --pv-radius-sm: calc(var(--radius) - 4px);
+  --pv-radius-md: var(--radius);
+  --pv-radius-lg: calc(var(--radius) + 4px);
 }
  
 /* ------------------------------------------------------------------ */
@@ -168,6 +191,22 @@
  
   --ai-label: oklch(0.72 0.012 190);
   --human-mark: oklch(0.74 0.1 185);
+
+  --pv-paper: oklch(0.2 0.012 190);
+  --pv-paper-raised: oklch(0.26 0.012 190);
+  --pv-hairline: oklch(1 0 0 / 12%);
+  --pv-ink: oklch(0.94 0.008 90);
+  --pv-text-primary: oklch(0.94 0.008 90);
+  --pv-text-secondary: oklch(0.72 0.012 190);
+  --pv-text-muted: oklch(0.62 0.01 90);
+  --pv-statute: oklch(0.68 0.16 262);
+  --pv-statute-hover: oklch(0.74 0.16 262);
+  --pv-risk-low: oklch(0.76 0.1 185);
+  --pv-risk-low-bg: oklch(0.3 0.04 185);
+  --pv-risk-medium: oklch(0.8 0.13 80);
+  --pv-risk-medium-bg: oklch(0.32 0.05 80);
+  --pv-risk-high: oklch(0.72 0.13 40);
+  --pv-risk-high-bg: oklch(0.31 0.05 40);
 }
  
 /* ------------------------------------------------------------------ */

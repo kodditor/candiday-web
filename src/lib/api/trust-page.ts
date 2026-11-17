@@ -1,5 +1,7 @@
 import axios from "axios";
 import config from "@/config";
+import { api } from "@/lib/request";
+import { getApiErrorMessage } from "@/lib/api/errors";
 import type {
   PublicTrustPageResponse,
   TrustPageSettingsResponse,
@@ -8,38 +10,10 @@ import type {
 } from "@/lib/types/trust-page.type";
 import type { AppRequest } from "@/lib/types/request.type";
 
-function getApiErrorMessage(error: unknown, fallback: string): string {
-  if (axios.isAxiosError(error)) {
-    const data = error.response?.data as AppRequest<unknown> | undefined;
-    if (data && !data.success && data.error) return data.error;
-    if (data?.message) return data.message;
-    if (error.message) return error.message;
-  }
-
-  if (error instanceof Error && error.message) {
-    return error.message;
-  }
-
-  return fallback;
-}
-
-function authHeaders(token: string) {
-  return {
-    Authorization: `Bearer ${token}`,
-    "Content-Type": "application/json",
-  };
-}
-
-export async function fetchTrustPageSettings(
-  token: string,
-): Promise<TrustPageSettingsResponse> {
+export async function fetchTrustPageSettings(): Promise<TrustPageSettingsResponse> {
   try {
-    const response = await axios.get<AppRequest<TrustPageSettingsResponse>>(
-      `${config.api.url}/api/v1/trust-page`,
-      {
-        headers: authHeaders(token),
-        timeout: 30000,
-      },
+    const response = await api.get<AppRequest<TrustPageSettingsResponse>>(
+      "/trust-page",
     );
 
     if (!response.data.success || !response.data.data) {
@@ -57,17 +31,12 @@ export async function fetchTrustPageSettings(
 }
 
 export async function updateTrustPageSettings(
-  token: string,
   payload: UpdateTrustPageSettingsPayload,
 ): Promise<TrustPageSettingsResponse> {
   try {
-    const response = await axios.patch<AppRequest<TrustPageSettingsResponse>>(
-      `${config.api.url}/api/v1/trust-page`,
+    const response = await api.patch<AppRequest<TrustPageSettingsResponse>>(
+      "/trust-page",
       payload,
-      {
-        headers: authHeaders(token),
-        timeout: 30000,
-      },
     );
 
     if (!response.data.success || !response.data.data) {
@@ -85,17 +54,12 @@ export async function updateTrustPageSettings(
 }
 
 export async function updateTrustPageSections(
-  token: string,
   payload: UpdateTrustPageSectionsPayload,
 ): Promise<TrustPageSettingsResponse> {
   try {
-    const response = await axios.put<AppRequest<TrustPageSettingsResponse>>(
-      `${config.api.url}/api/v1/trust-page/sections`,
+    const response = await api.put<AppRequest<TrustPageSettingsResponse>>(
+      "/trust-page/sections",
       payload,
-      {
-        headers: authHeaders(token),
-        timeout: 30000,
-      },
     );
 
     if (!response.data.success || !response.data.data) {
@@ -112,17 +76,11 @@ export async function updateTrustPageSections(
   }
 }
 
-export async function publishTrustPage(
-  token: string,
-): Promise<TrustPageSettingsResponse> {
+export async function publishTrustPage(): Promise<TrustPageSettingsResponse> {
   try {
-    const response = await axios.post<AppRequest<TrustPageSettingsResponse>>(
-      `${config.api.url}/api/v1/trust-page/publish`,
+    const response = await api.post<AppRequest<TrustPageSettingsResponse>>(
+      "/trust-page/publish",
       {},
-      {
-        headers: authHeaders(token),
-        timeout: 30000,
-      },
     );
 
     if (!response.data.success || !response.data.data) {

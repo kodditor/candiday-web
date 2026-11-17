@@ -6,7 +6,6 @@ import { fetchGlobalVendors } from "@/lib/api/global-vendors";
 import type { IGlobalVendor } from "@/lib/types/global-vendor.type";
 import { formatCategoryLabel } from "@/lib/utils/vendor";
 import { wrapError } from "@/lib/utils/request";
-import { useAuth } from "@clerk/react";
 import { CheckCircleIcon } from "@phosphor-icons/react";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
@@ -23,7 +22,6 @@ export function GlobalVendorCatalogModal({
   open,
   closeModal,
 }: GlobalVendorCatalogModalProps) {
-  const { getToken } = useAuth();
   const navigate = useNavigate();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [page] = useQueryState("catalog-page", parseAsInteger.withDefault(1));
@@ -35,9 +33,7 @@ export function GlobalVendorCatalogModal({
     queryKey: ["global-vendors", "catalog", query, page, limit],
     placeholderData: keepPreviousData,
     queryFn: async () => wrapError(async () => {
-      const token = await getToken({ skipCache: true });
-      if (!token) throw new Error("Missing session token");
-      return fetchGlobalVendors(token, { query, page, limit });
+      return fetchGlobalVendors({ query, page, limit });
     }),
   });
 

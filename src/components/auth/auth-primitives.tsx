@@ -37,16 +37,16 @@ export function AuthDivider() {
   return (
     <div className="relative py-2">
       <div className="absolute inset-0 flex items-center">
-        <span className="w-full border-t border-hairline" />
+        <span className="w-full border-t border-border" />
       </div>
       <div className="relative flex justify-center text-xs uppercase">
-        <span className="bg-paper-raised px-3 text-text-muted">or</span>
+        <span className="bg-card px-3 text-muted-foreground">or</span>
       </div>
     </div>
   );
 }
 
-export function ClerkFieldError({ message }: { message?: string }) {
+export function AuthFieldError({ message }: { message?: string }) {
   if (!message) return null;
 
   return (
@@ -56,7 +56,7 @@ export function ClerkFieldError({ message }: { message?: string }) {
   );
 }
 
-export function ClerkGlobalErrors({
+export function AuthGlobalErrors({
   errors,
 }: {
   errors?: Array<{ message?: string }> | null;

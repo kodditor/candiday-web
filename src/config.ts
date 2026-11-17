@@ -79,14 +79,12 @@ const config = {
   api: {
     url: import.meta.env.VITE_API_URL || "http://localhost:4000",
   },
-  clerk: {
-    publishableKey: import.meta.env.VITE_CLERK_PUBLISHABLE_KEY || "",
+  auth: {
     signUpUrl: "/auth/signup",
     signInUrl: "/auth/login",
     onboardingUrl: "/auth/onboarding",
-    ssoCallbackUrl: "/sso-callback",
     afterSignInUrl: "/dashboard",
-    afterSignUpUrl: "/dashboard",
+    afterSignUpUrl: "/auth/onboarding",
   },
   polarCustomerSupportPortalUrl: import.meta.env.VITE_POLAR_CUSTOMER_SUPPORT_PORTAL_URL || "",
   pricing: {

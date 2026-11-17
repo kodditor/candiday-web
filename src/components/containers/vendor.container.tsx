@@ -24,7 +24,6 @@ import { wrapError } from "@/lib/utils/request";
 import { DPA_PDF_ACCEPT, isValidDpaPdfFile } from "@/lib/utils/dpa-file";
 import { uploadFile } from "@/lib/utils/upload";
 import { formatCategoryLabel } from "@/lib/utils/vendor";
-import { useAuth } from "@clerk/react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import {
@@ -384,7 +383,6 @@ export function VendorContainer({
   trustPageLayout = "Simplified",
   onUpdated,
 }: VendorContainerProps) {
-  const { getToken } = useAuth();
   const organization = useUser((state) => state.organization);
   const subscriptionPlan = parseSubscriptionPlan(organization?.plan);
   const aiExtractionEnabled = isAiExtractionEnabled(subscriptionPlan);
@@ -404,24 +402,20 @@ export function VendorContainer({
     enabled: Boolean(vendor.globalVendor),
     queryKey: ["global-vendor", vendor.globalVendor],
     queryFn: async () => wrapError(async () => {
-      const token = await getToken({ skipCache: true });
-      if (!token) throw new Error("Missing session token");
       if (!vendor.globalVendor) throw new Error("Missing global vendor id");
-      return fetchGlobalVendor(token, vendor.globalVendor);
+      return fetchGlobalVendor(vendor.globalVendor);
     }),
   });
 
   const dpaUploadMutation = useMutation({
     mutationFn: async (file: File) => wrapError(async () => {
-      const token = await getToken({ skipCache: true });
-      if (!token) throw new Error("Missing session token");
 
-      const fileKey = await uploadFile(file, token, {
+      const fileKey = await uploadFile(file, {
         type: "dpas",
         protected: true,
       });
 
-      await updateVendor(token, vendor._id, {
+      await updateVendor(vendor._id, {
         dpa: { fileKey },
       });
     }),
@@ -436,11 +430,9 @@ export function VendorContainer({
 
   const viewDpaMutation = useMutation({
     mutationFn: async () => wrapError(async () => {
-      const token = await getToken({ skipCache: true });
-      if (!token) throw new Error("Missing session token");
       if (!vendor.dpa.fileKey) throw new Error("No DPA on file");
 
-      return fetchDpaAssetUrl(token, vendor.dpa.fileKey);
+      return fetchDpaAssetUrl(vendor.dpa.fileKey);
     }),
     onSuccess: ({ url }) => {
       window.open(url, "_blank", "noopener,noreferrer");
@@ -452,10 +444,8 @@ export function VendorContainer({
 
   const trustPageMutation = useMutation({
     mutationFn: async (included: boolean) => wrapError(async () => {
-      const token = await getToken({ skipCache: true });
-      if (!token) throw new Error("Missing session token");
 
-      await updateVendor(token, vendor._id, {
+      await updateVendor(vendor._id, {
         trustPage: { included },
       });
     }),

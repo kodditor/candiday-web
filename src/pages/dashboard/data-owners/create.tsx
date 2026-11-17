@@ -8,7 +8,6 @@ import Modal from "@/components/ui/modal";
 import { createDataOwner } from "@/lib/api/data-owners";
 import { type AppMutation } from "@/lib/types/form.type";
 import { wrapError } from "@/lib/utils/request";
-import { useAuth } from "@clerk/react";
 import { useMutation } from "@tanstack/react-query";
 import { useFormik } from "formik";
 import { toast } from "sonner";
@@ -24,17 +23,11 @@ export function CreateDataOwnerModal({
   closeModal,
   refetch,
 }: Props) {
-  const { getToken } = useAuth();
 
   const mutate = useMutation({
     mutationFn: ({ values, helpers }: AppMutation) => wrapError(async () => {
-      const token = await getToken({ skipCache: true });
 
-      if (!token) {
-        throw new Error("Missing session token");
-      }
-
-      await createDataOwner(token, {
+      await createDataOwner({
         name: values.name,
         email: values.email,
         role: values.role || undefined,

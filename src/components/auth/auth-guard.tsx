@@ -1,7 +1,7 @@
 import { useEffect } from "react";
-import { useAuth, useClerk } from "@clerk/react";
 import { useNavigate } from "@tanstack/react-router";
 import config from "@/config";
+import { useSession } from "@/lib/auth/session";
 
 type AuthGuardProps = {
   children: React.ReactNode;
@@ -16,18 +16,17 @@ export function AuthGuard({
   redirectIfSignedIn = false,
   redirectTo,
 }: AuthGuardProps) {
-  const { isLoaded, isSignedIn } = useAuth();
-  const { session } = useClerk();
+  const { data: session, isPending } = useSession();
   const navigate = useNavigate();
-  const isAuthenticated = isSignedIn || !!session;
-  const signedInDestination = redirectTo ?? config.clerk.afterSignInUrl;
+  const isAuthenticated = Boolean(session?.session);
+  const signedInDestination = redirectTo ?? config.auth.afterSignInUrl;
 
   useEffect(() => {
-    if (!isLoaded) return;
+    if (isPending) return;
 
     if (requireAuth && !isAuthenticated) {
       navigate({
-        to: config.clerk.signInUrl,
+        to: config.auth.signInUrl,
         search: redirectTo ? { redirect_to: redirectTo } : { redirect_to: undefined },
       });
       return;
@@ -37,7 +36,7 @@ export function AuthGuard({
       navigate({ to: signedInDestination });
     }
   }, [
-    isLoaded,
+    isPending,
     isAuthenticated,
     requireAuth,
     redirectIfSignedIn,
@@ -46,26 +45,26 @@ export function AuthGuard({
     signedInDestination,
   ]);
 
-  if (!isLoaded) {
+  if (isPending) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-paper">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-statute border-t-transparent" />
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
       </div>
     );
   }
 
   if (requireAuth && !isAuthenticated) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-paper">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-statute border-t-transparent" />
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
       </div>
     );
   }
 
   if (redirectIfSignedIn && isAuthenticated) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-paper">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-statute border-t-transparent" />
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
       </div>
     );
   }

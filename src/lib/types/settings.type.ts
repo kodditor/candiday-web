@@ -1,11 +1,9 @@
 export type SettingsOrganization = {
   name: string;
-  slug: string;
-  logoUrl?: string | null;
   plan: string;
-  subscriptionRenewedAt?: string | null;
-  subscriptionEndsAt?: string | null;
-  hasBillingAccount: boolean;
+  createdAt: string;
+  memberCount: number;
+  roleRetentionMonths: number;
 };
 
 export type SettingsProfile = {
@@ -22,16 +20,5 @@ export type SettingsResponse = {
 };
 
 export type UpdateOrganizationSettingsPayload = {
-  name?: string;
-  logoUrl?: string | null;
-};
-
-export type UpdateProfileSettingsPayload = {
-  firstName?: string;
-  lastName?: string;
-  imageUrl?: string | null;
-};
-
-export type BillingPortalResponse = {
-  portalUrl: string;
+  roleRetentionMonths: number;
 };

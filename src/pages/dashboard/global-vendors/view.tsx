@@ -1,7 +1,6 @@
 import { GlobalVendorContainer } from "@/components/containers/global-vendor.container";
 import { fetchGlobalVendor } from "@/lib/api/global-vendors";
 import { wrapError } from "@/lib/utils/request";
-import { useAuth } from "@clerk/react";
 import { ArrowLeftIcon, CircleNotchIcon } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { Link, createRoute } from "@tanstack/react-router";
@@ -15,14 +14,11 @@ export const DashboardGlobalVendorDetailRoute = createRoute({
 
 export function GlobalVendorDetailPage() {
   const { id } = DashboardGlobalVendorDetailRoute.useParams();
-  const { getToken } = useAuth();
 
   const globalVendorQuery = useQuery({
     queryKey: ["global-vendor", id],
     queryFn: async () => wrapError(async () => {
-      const token = await getToken({ skipCache: true });
-      if (!token) throw new Error("Missing session token");
-      return fetchGlobalVendor(token, id);
+      return fetchGlobalVendor(id);
     }),
   });
 

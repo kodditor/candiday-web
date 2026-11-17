@@ -4,7 +4,6 @@ import { fetchDataOwners } from "@/lib/api/data-owners";
 import { updateVendor } from "@/lib/api/vendors";
 import type { IDataOwner } from "@/lib/types/data-owner.type";
 import { wrapError } from "@/lib/utils/request";
-import { useAuth } from "@clerk/react";
 import {
   ArrowLeftIcon,
   ArrowRightIcon,
@@ -51,7 +50,6 @@ export function EditDataOwnersModal({
   currentOwners,
   onUpdated,
 }: EditDataOwnersModalProps) {
-  const { getToken } = useAuth();
   const [search, setSearch] = useState("");
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [ownerLookup, setOwnerLookup] = useState<Record<string, IDataOwner>>({});
@@ -71,9 +69,7 @@ export function EditDataOwnersModal({
     enabled: open,
     queryKey: ["data-owners", "transfer-list", search],
     queryFn: async () => wrapError(async () => {
-      const token = await getToken({ skipCache: true });
-      if (!token) throw new Error("Missing session token");
-      return fetchDataOwners(token, { query: search || undefined, limit: 50 });
+      return fetchDataOwners({ query: search || undefined, limit: 50 });
     }),
   });
 
@@ -114,10 +110,8 @@ export function EditDataOwnersModal({
 
   const updateMutation = useMutation({
     mutationFn: async () => wrapError(async () => {
-      const token = await getToken({ skipCache: true });
-      if (!token) throw new Error("Missing session token");
 
-      await updateVendor(token, vendorId, {
+      await updateVendor(vendorId, {
         dataOwners: selectedIds,
       });
     }),

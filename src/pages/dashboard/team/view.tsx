@@ -16,7 +16,6 @@ import {
   type ITeamRow,
 } from "@/lib/types/team-member.type";
 import { wrapError } from "@/lib/utils/request";
-import { useAuth } from "@clerk/react";
 import { useMutation } from "@tanstack/react-query";
 import { useQueryState } from "nuqs";
 import { useState } from "react";
@@ -41,7 +40,6 @@ export function ViewTeamMemberModal({
   currentUserId,
   onUpdated,
 }: Props) {
-  const { getToken } = useAuth();
   const [encodedId] = useQueryState("id");
   const selectedRow = findTeamRow(rows, encodedId);
   const showLoading = open && Boolean(encodedId) && loading;
@@ -61,17 +59,12 @@ export function ViewTeamMemberModal({
 
   const archiveMutation = useMutation({
     mutationFn: async () => wrapError(async () => {
-      const token = await getToken({ skipCache: true });
-
-      if (!token) {
-        throw new Error("Missing session token");
-      }
 
       if (!selectedRow?.clerkUserId) {
         throw new Error("Missing team member id");
       }
 
-      await archiveTeamMember(token, selectedRow.clerkUserId);
+      await archiveTeamMember(selectedRow.clerkUserId);
       setArchiveOpen(false);
       closeModal();
       onUpdated?.();
@@ -81,17 +74,12 @@ export function ViewTeamMemberModal({
 
   const restoreMutation = useMutation({
     mutationFn: async () => wrapError(async () => {
-      const token = await getToken({ skipCache: true });
-
-      if (!token) {
-        throw new Error("Missing session token");
-      }
 
       if (!selectedRow?.clerkUserId) {
         throw new Error("Missing team member id");
       }
 
-      await restoreTeamMember(token, selectedRow.clerkUserId);
+      await restoreTeamMember(selectedRow.clerkUserId);
       setRestoreOpen(false);
       closeModal();
       onUpdated?.();
@@ -138,8 +126,8 @@ export function ViewTeamMemberModal({
             <AlertDialogTitle>Archive team member?</AlertDialogTitle>
             <AlertDialogDescription>
               {selectedRow
-                ? `Archive ${selectedRow.name}? They will lose access to ProcVault but remain visible in your team list.`
-                : "This team member will lose access to ProcVault."}
+                ? `Archive ${selectedRow.name}? They will lose access to Candiday but remain visible in your team list.`
+                : "This team member will lose access to Candiday."}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -163,8 +151,8 @@ export function ViewTeamMemberModal({
             <AlertDialogTitle>Restore team member?</AlertDialogTitle>
             <AlertDialogDescription>
               {selectedRow
-                ? `Restore access for ${selectedRow.name}? They will be able to use ProcVault again.`
-                : "This team member will regain access to ProcVault."}
+                ? `Restore access for ${selectedRow.name}? They will be able to use Candiday again.`
+                : "This team member will regain access to Candiday."}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

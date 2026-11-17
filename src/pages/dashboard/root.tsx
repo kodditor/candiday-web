@@ -3,10 +3,9 @@ import { SuspendedAccountScreen } from "@/components/auth/suspended-account-scre
 import { DashboardShell } from "@/components/layout/dashboard-shell";
 import { Button } from "@/components/ui/button";
 import { resetSessionAndSignOut } from "@/lib/auth/reset-session";
-import { getAuthToken } from "@/lib/auth/get-auth-token";
 import { fetchCurrentUser, isAuthFailure } from "@/lib/api/user";
 import { useUser } from "@/lib/context/user-context";
-import { useAuth, useClerk } from "@clerk/react";
+import { useSession } from "@/lib/auth/session";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Outlet, createRoute, useNavigate } from "@tanstack/react-router";
 import { CircleNotchIcon } from "@phosphor-icons/react";
@@ -21,8 +20,7 @@ export const DashboardRootRoute = createRoute({
 });
 
 export function DashboardLayout() {
-  const { getToken, isLoaded, isSignedIn, userId } = useAuth();
-  const { signOut } = useClerk();
+  const { data: session, isPending } = useSession();
   const queryClient = useQueryClient();
   const setUser = useUser((state) => state.setUser);
   const setOrganization = useUser((state) => state.setOrganization);
@@ -32,19 +30,15 @@ export function DashboardLayout() {
   const navigate = useNavigate();
   const sessionRecoveryRef = useRef(false);
 
+  const isSignedIn = Boolean(session?.session);
+
   const userQuery = useQuery({
-    enabled: isLoaded && isSignedIn && Boolean(userId),
+    enabled: !isPending && isSignedIn,
     queryKey: ["current-user"],
     refetchOnWindowFocus: false,
     retry: false,
     queryFn: async () => {
-      const token = await getAuthToken(getToken);
-
-      if (!token) {
-        throw new Error("Missing session token");
-      }
-
-      const response = await fetchCurrentUser(token);
+      const response = await fetchCurrentUser();
 
       if (response.user) {
         setUser(response.user);
@@ -60,7 +54,7 @@ export function DashboardLayout() {
     const params = new URLSearchParams(window.location.search);
 
     if (params.get("checkout") === "success") {
-      toast.success("Payment complete. Welcome to ProcVault!");
+      toast.success("Payment complete. Welcome to Candiday!");
       params.delete("checkout");
       params.delete("customer_session_token");
 
@@ -78,7 +72,7 @@ export function DashboardLayout() {
     if (isAuthFailure(userQuery.error)) {
       sessionRecoveryRef.current = true;
       toast.error("Unable to load your workspace. Please sign in again.");
-      void resetSessionAndSignOut(signOut, queryClient);
+      void resetSessionAndSignOut(queryClient);
       return;
     }
 
@@ -87,7 +81,7 @@ export function DashboardLayout() {
         ? userQuery.error.message
         : "Unable to load your workspace.",
     );
-  }, [userQuery.isError, userQuery.error, signOut, queryClient]);
+  }, [userQuery.isError, userQuery.error, queryClient]);
 
   useEffect(() => {
     if (!userQuery.data || userQuery.isLoading) {
@@ -126,7 +120,7 @@ export function DashboardLayout() {
   }
 
   if (
-    !isLoaded ||
+    isPending ||
     userQuery.isLoading ||
     (userQuery.isError && isAuthFailure(userQuery.error)) ||
     userQuery.data?.isOnboarded === false

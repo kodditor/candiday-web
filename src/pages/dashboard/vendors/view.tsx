@@ -5,7 +5,6 @@ import { fetchCurrentUser } from "@/lib/api/user";
 import type { VendorFlags } from "@/lib/types/vendor.type";
 import { computeVendorFlags } from "@/lib/utils/vendor";
 import { wrapError } from "@/lib/utils/request";
-import { useAuth } from "@clerk/react";
 import { useQuery } from "@tanstack/react-query";
 import { Link, createRoute, useRouterState } from "@tanstack/react-router";
 import { ArrowLeftIcon, CircleNotchIcon } from "@phosphor-icons/react";
@@ -23,7 +22,6 @@ export const DashboardVendorDetailRoute = createRoute({
 
 export function VendorDetailPage() {
   const { id } = DashboardVendorDetailRoute.useParams();
-  const { getToken } = useAuth();
   const routerState = useRouterState({
     select: (state) => state.location.state as VendorDetailLocationState | undefined,
   });
@@ -31,18 +29,14 @@ export function VendorDetailPage() {
   const vendorQuery = useQuery({
     queryKey: ["vendor", id],
     queryFn: async () => wrapError(async () => {
-      const token = await getToken({ skipCache: true });
-      if (!token) throw new Error("Missing session token");
-      return fetchVendor(token, id);
+      return fetchVendor(id);
     }),
   });
 
   const sessionQuery = useQuery({
     queryKey: ["current-user"],
     queryFn: async () => wrapError(async () => {
-      const token = await getToken({ skipCache: true });
-      if (!token) throw new Error("Missing session token");
-      return fetchCurrentUser(token);
+      return fetchCurrentUser();
     }),
   });
 

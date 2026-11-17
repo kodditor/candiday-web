@@ -64,10 +64,11 @@ export default function TextInput({
         </label>
       )}
       <div
-        className={`flex items-center border shadow-sm px-3 rounded
+        className={`flex items-center border border border-hairline px-3 rounded-md placeholder:text-text-muted focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring
           ${inputError ? "border-red-500" : "border-gray-300"}
           ${disabled ? "bg-gray-100 cursor-not-allowed" : "bg-white"}
           ${className || ""}
+          ""
         `}
       >
         {/* Left Icon */}
@@ -121,7 +122,7 @@ export default function TextInput({
         )}
       </div>
 
-      {inputError && !hideError && <p className="mt-1 text-xs text-red-500">{inputError}</p>}
+      {inputError && !hideError && <p className="mt-1 text-xs text-red-500 absolute">{inputError}</p>}
     </div>
   );
 }
