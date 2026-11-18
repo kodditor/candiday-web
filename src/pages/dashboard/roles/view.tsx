@@ -1,3 +1,4 @@
+import { RoleEditModal } from "@/components/roles/role-edit-modal";
 import { RubricPanel } from "@/components/rubric/rubric-panel";
 import { RoleStatusChip } from "@/components/roles/role-status-chip";
 import { Button } from "@/components/ui/button";
@@ -6,6 +7,7 @@ import { useOrganizationId } from "@/lib/hooks/use-organization-id";
 import { useQuery } from "@tanstack/react-query";
 import { createRoute, Link } from "@tanstack/react-router";
 import { ArrowLeftIcon } from "@phosphor-icons/react";
+import { useState } from "react";
 import { DashboardRootRoute } from "../root";
 
 export const DashboardRoleDetailRoute = createRoute({
@@ -17,6 +19,7 @@ export const DashboardRoleDetailRoute = createRoute({
 function RoleDetailPage() {
   const { roleId } = DashboardRoleDetailRoute.useParams();
   const organizationId = useOrganizationId();
+  const [editOpen, setEditOpen] = useState(false);
 
   const roleQuery = useQuery({
     queryKey: rolesQueryKeys.detail(roleId),
@@ -35,51 +38,61 @@ function RoleDetailPage() {
   }
 
   return (
-    <div className="space-y-8">
-      <div>
-        <Button variant="ghost" size="sm" asChild className="-ml-2 mb-3">
-          <Link to="/dashboard/roles">
-            <ArrowLeftIcon className="mr-1 size-4" aria-hidden />
-            Roles
-          </Link>
-        </Button>
+    <div className="relative left-1/2 w-screen -translate-x-1/2">
+      <div className="mx-auto w-full max-w-7xl space-y-8 px-6">
+        <div>
+          <Button variant="ghost" size="sm" asChild className="-ml-2 mb-3">
+            <Link to="/dashboard/roles">
+              <ArrowLeftIcon className="mr-1 size-4" aria-hidden />
+              Roles
+            </Link>
+          </Button>
 
-        <h1 className="text-xl font-semibold text-ink">{role.title}</h1>
-        <div className="mt-1.5 flex flex-wrap items-center gap-2">
-          {role.companyName ? (
-            <p className="text-sm text-text-muted">{role.companyName}</p>
-          ) : null}
-          <RoleStatusChip status={role.status} />
+          <h1 className="text-xl font-semibold text-ink">{role.title}</h1>
+          <div className="mt-1.5 flex flex-wrap items-center gap-2">
+            {role.companyName ? (
+              <p className="text-sm text-text-muted">{role.companyName}</p>
+            ) : null}
+            <RoleStatusChip status={role.status} />
+          </div>
         </div>
-      </div>
 
-      <div className="grid gap-8 lg:grid-cols-2">
-        <section className="space-y-4 rounded-lg border border-hairline bg-white p-5">
-          <div className="flex items-center justify-between gap-2">
-            <h2 className="text-base font-semibold text-ink">Role details</h2>
-            <Button variant="link" size="sm" asChild className="h-auto p-0">
-              <Link to="/dashboard/roles">Edit role</Link>
-            </Button>
-          </div>
-          <div>
-            <p className="text-xs font-medium uppercase tracking-wide text-text-muted">
-              Job description
-            </p>
-            <p className="mt-2 whitespace-pre-wrap text-sm text-ink">{role.jobDescription}</p>
-          </div>
-          {role.requirementsNotes ? (
+        <div className="grid gap-8 lg:grid-cols-2">
+          <section className="space-y-4 rounded-lg border border-hairline bg-white p-5">
+            <div className="flex items-center justify-between gap-2">
+              <h2 className="text-base font-semibold text-ink">Role details</h2>
+              <Button
+                type="button"
+                variant="link"
+                size="sm"
+                className="h-auto p-0"
+                onClick={() => setEditOpen(true)}
+              >
+                Edit role
+              </Button>
+            </div>
             <div>
               <p className="text-xs font-medium uppercase tracking-wide text-text-muted">
-                Recruiter notes
+                Job description
               </p>
-              <p className="mt-2 whitespace-pre-wrap text-sm text-ink">
-                {role.requirementsNotes}
-              </p>
+              <p className="mt-2 whitespace-pre-wrap text-sm text-ink">{role.jobDescription}</p>
             </div>
-          ) : null}
-        </section>
+            {role.requirementsNotes ? (
+              <div>
+                <p className="text-xs font-medium uppercase tracking-wide text-text-muted">
+                  Recruiter notes
+                </p>
+                <p className="mt-2 whitespace-pre-wrap text-sm text-ink">
+                  {role.requirementsNotes}
+                </p>
+              </div>
+            ) : null}
+          </section>
 
-        <RubricPanel role={role} />
+          <RubricPanel role={role} />
+        </div>
+
+        <RoleEditModal open={editOpen} role={role} onOpenChange={setEditOpen} />
       </div>
     </div>
   );

@@ -48,6 +48,8 @@ export type CreateRolePayload = {
   requirementsNotes?: string | null;
 };
 
+export type UpdateRolePayload = CreateRolePayload;
+
 export type Role = {
   id: string;
   title: string;

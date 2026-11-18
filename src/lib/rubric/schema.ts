@@ -44,6 +44,12 @@ const itemRules = (item: z.infer<typeof ItemCore>, ctx: z.RefinementCtx) => {
 
 export const LlmItemSchema = ItemCore.superRefine(itemRules);
 
+export const RubricSaveItemInputSchema = ItemCore.extend({
+  id: z.string().min(1).optional(),
+})
+  .strict()
+  .superRefine(itemRules);
+
 export const RubricItemSchema = ItemCore.extend({
   id: z.string().min(1),
   position: z.number().int().min(0),
@@ -64,5 +70,7 @@ export const StoredRubricItemsSchema = z
     }
   });
 
+export type Level = z.infer<typeof LevelSchema>;
 export type LlmItem = z.infer<typeof LlmItemSchema>;
+export type RubricSaveItemInput = z.infer<typeof RubricSaveItemInputSchema>;
 export type RubricItem = z.infer<typeof RubricItemSchema>;

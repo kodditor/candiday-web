@@ -8,6 +8,7 @@ import type {
   RoleListItemDto,
   RolesListResponse,
   RolesSummaryResponse,
+  UpdateRolePayload,
 } from "@/lib/types/role.type";
 import { isRoleStatus } from "@/lib/roles/status";
 
@@ -126,5 +127,33 @@ export async function createRole(payload: CreateRolePayload): Promise<Role> {
     return mapListItemToRole(response.data.data as RoleListItemDto);
   } catch (error) {
     throw new Error(getApiErrorMessage(error, "Unable to create role."));
+  }
+}
+
+export async function updateRole(
+  roleId: string,
+  payload: UpdateRolePayload,
+): Promise<RoleDetailDto> {
+  try {
+    const response = await api.patch<AppRequest<RoleDetailDto>>(`/roles/${roleId}`, {
+      title: payload.title.trim(),
+      companyName: payload.companyName?.trim() || null,
+      jobDescription: payload.jobDescription.trim(),
+      seniority: payload.seniority?.trim() || null,
+      location: payload.location?.trim() || null,
+      requirementsNotes: payload.requirementsNotes?.trim() || null,
+    });
+
+    if (!response.data.success || !response.data.data) {
+      throw new Error(
+        response.data.success === false
+          ? response.data.error
+          : "Unable to update role.",
+      );
+    }
+
+    return response.data.data;
+  } catch (error) {
+    throw new Error(getApiErrorMessage(error, "Unable to update role."));
   }
 }

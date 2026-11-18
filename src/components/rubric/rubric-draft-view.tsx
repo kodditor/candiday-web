@@ -1,5 +1,6 @@
 import type { RubricItem } from "@/lib/rubric/schema";
 import type { DraftValidation } from "@/lib/types/rubric.type";
+import lodash from "lodash";
 
 type RubricDraftViewProps = {
   items: RubricItem[];
@@ -33,7 +34,7 @@ export function RubricDraftView({
             <div className="flex flex-wrap items-baseline justify-between gap-2">
               <p className="text-sm font-medium text-ink">{item.label}</p>
               <span className="text-xs text-text-muted">
-                {item.requirement} · {item.weight}%
+                {lodash.capitalize(item.requirement)} · {item.weight}%
               </span>
             </div>
             <p className="mt-1 text-sm text-text-muted">{item.description}</p>

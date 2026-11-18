@@ -1,3 +1,4 @@
+import { MIN_RUBRIC_CRITERIA } from "./draft-item";
 import { lintRubric } from "./lint";
 import { LlmItemSchema, StoredRubricItemsSchema, type RubricItem } from "./schema";
 
@@ -17,6 +18,15 @@ export function buildDraftValidation(items: RubricItem[] | null): DraftValidatio
   }
 
   const errors: DraftValidation["errors"] = [];
+
+  if (items.length < MIN_RUBRIC_CRITERIA) {
+    errors.push({
+      message: `Rubrics need at least ${MIN_RUBRIC_CRITERIA} criteria.`,
+    });
+  }
+  if (!items.some((i) => i.requirement === "essential")) {
+    errors.push({ message: "At least one criterion must be essential." });
+  }
   for (const item of items) {
     const parsed = LlmItemSchema.safeParse(item);
     if (!parsed.success) {

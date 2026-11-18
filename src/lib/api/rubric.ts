@@ -1,7 +1,7 @@
 import { api } from "@/lib/request";
 import { getApiErrorMessage } from "@/lib/api/errors";
 import type { AppRequest } from "@/lib/types/request.type";
-import type { RubricItem } from "@/lib/rubric/schema";
+import type { RubricSaveItemInput } from "@/lib/rubric/schema";
 import type { RubricView } from "@/lib/types/rubric.type";
 
 export const rubricQueryKeys = {
@@ -41,7 +41,7 @@ export async function startRubricGeneration(
 export async function saveRubricItems(
   rubricId: string,
   baseRevision: number,
-  items: RubricItem[],
+  items: RubricSaveItemInput[],
 ): Promise<RubricView> {
   const response = await api.put<AppRequest<RubricView>>(`/rubrics/${rubricId}/items`, {
     baseRevision,

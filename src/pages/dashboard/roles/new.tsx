@@ -5,28 +5,11 @@ import { cn } from "@/lib/utils";
 import { useQueryClient } from "@tanstack/react-query";
 import { useFormik } from "formik";
 import { createRoute, useNavigate } from "@tanstack/react-router";
+import { roleFormSchema } from "@/lib/roles/role-form-schema";
 import { toast } from "sonner";
-import * as Yup from "yup";
 import { DashboardRootRoute } from "../root";
 import TextInput from "@/components/form/input";
 import TextArea from "@/components/form/text-area";
-
-const NewRoleSchema = Yup.object({
-  title: Yup.string()
-    .trim()
-    .min(1, "Required")
-    .max(200, "Title is too long")
-    .required("Required"),
-  company: Yup.string()
-    .trim()
-    .max(200, "Company name is too long")
-    .required("Required"),
-  description: Yup.string()
-    .trim()
-    .min(50, "Paste a fuller job description so we can draft useful criteria")
-    .max(50_000, "Job description is too long")
-    .required("Required"),
-});
 
 export const DashboardRoleNewRoute = createRoute({
   getParentRoute: () => DashboardRootRoute,
@@ -44,7 +27,7 @@ function NewRolePage() {
       company: "",
       description: "",
     },
-    validationSchema: NewRoleSchema,
+    validationSchema: roleFormSchema,
     onSubmit: async (values) => {
       try {
         await createRole({
